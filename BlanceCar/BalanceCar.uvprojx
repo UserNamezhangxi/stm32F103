@@ -365,7 +365,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>.\Start;.\User;.\Library;.\System\delay;.\System\sys;.\System\usart;.\Hardware\Led;.\Hardware\MPU6050\eMPL;.\Hardware\MPU6050;.\Hardware\Exti;.\Hardware\Encoder;.\Hardware\Motor;.\Hardware\Filter;.\Hardware\USART3</IncludePath>
+              <IncludePath>.\Start;.\User;.\Library;.\System\delay;.\System\sys;.\System\usart;.\Hardware\Led;.\Hardware\MPU6050\eMPL;.\Hardware\Exti;.\Hardware\Encoder;.\Hardware\Motor;.\Hardware\Filter;.\Hardware\USART3;.\Hardware\OLED;.\Hardware\IIC;.\Hardware\MPU6050;.\Hardware\ADC;.\Hardware\KEY</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -724,11 +724,6 @@
               <FilePath>.\Hardware\MPU6050\mpu6050.c</FilePath>
             </File>
             <File>
-              <FileName>mpuiic.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Hardware\MPU6050\mpuiic.c</FilePath>
-            </File>
-            <File>
               <FileName>inv_mpu.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Hardware\MPU6050\eMPL\inv_mpu.c</FilePath>
@@ -762,6 +757,26 @@
               <FileName>usart3.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Hardware\USART3\usart3.c</FilePath>
+            </File>
+            <File>
+              <FileName>IIC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\IIC\IIC.c</FilePath>
+            </File>
+            <File>
+              <FileName>OLED.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\OLED\OLED.c</FilePath>
+            </File>
+            <File>
+              <FileName>key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\KEY\key.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\ADC\adc.c</FilePath>
             </File>
           </Files>
         </Group>

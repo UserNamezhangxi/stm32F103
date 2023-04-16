@@ -5,7 +5,7 @@
 #include "usart.h"   
 
 short gyro[3], accel[3], sensors;
- 
+float Roll,Pitch,Yaw; 
 //初始化MPU6050
 //返回值:0,成功
 //    其他,错误代码
@@ -26,7 +26,6 @@ u8 MPU_Init(void)
 	
 	MPU_AD0_CTRL=0;			//控制MPU6050的AD0脚为低电平,从机地址为:0X68
 	
-  // MPU_IIC_Init();//初始化IIC总线
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG,0X80);	//复位MPU6050
   delay_ms(100);
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG,0X00);	//唤醒MPU6050 

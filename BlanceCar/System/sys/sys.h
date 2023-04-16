@@ -13,6 +13,9 @@
 #include "filter.h"
 #include "control.h"
 #include "usart3.h"
+#include "adc.h"
+#include "oled.h"
+#include "key.h"
 #include <math.h>
 //////////////////////////////////////////////////////////////////////////////////	 
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
@@ -80,44 +83,22 @@
 #define PGout(n)   BIT_ADDR(GPIOG_ODR_Addr,n)  //输出 
 #define PGin(n)    BIT_ADDR(GPIOG_IDR_Addr,n)  //输入
 
+
+
+
+
 //以下为汇编函数
 void WFI_SET(void);		//执行WFI指令
 void INTX_DISABLE(void);//关闭所有中断
 void INTX_ENABLE(void);	//开启所有中断
 void MSR_MSP(u32 addr);	//设置堆栈地址
 void JTAG_Set(u8 mode);
-extern u8 Way_Angle;                                       				 //获取角度的算法，1：四元数  2：卡尔曼  3：互补滤波
-extern int Motor_Left,Motor_Right;                                 //电机PWM变量 应是motor的 向moto致敬	
-          																
-extern float Angle_Balance,Gyro_Balance,Gyro_Turn;     						 //平衡倾角 平衡陀螺仪 转向陀螺仪
-extern int Temperature;
-                                       		//超声波测距
-extern u8 delay_50,delay_flag,PID_Send;
-extern float Acceleration_Z;                       //Z轴加速度计  
-extern float Balance_Kp,Balance_Kd,Velocity_Kp,Velocity_Ki,Turn_Kp,Turn_Kd;
-extern u8 Flag_Stop;  
-extern int Temperature;                            //温度变量
-extern u8 Way_Angle;   	 //获取角度的算法，1：四元数  2：卡尔曼  3：互补滤波
 
+extern u8 Flag_Stop; 
+extern float Angle_Balance,Gyro_Balance;           //平衡倾角 平衡陀螺仪
+extern int Encoder_Left,Encoder_Right;             //左右编码器的脉冲次数
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void mpu6050show(void);
+void MY_NVIC_PriorityGroupConfig(u8 NVIC_Group);
 
 #endif

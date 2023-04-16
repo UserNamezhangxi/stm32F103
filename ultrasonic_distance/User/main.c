@@ -23,25 +23,25 @@ int main(void)
 	
 	delay_init();	    	 //延时函数初始化	  
 	delay_ms(100);
-	//TIM3_Cap_Init(0XFFFF,72-1);	    //超声波初始化
+	TIM3_Cap_Init(0XFFFF,72-1);	    //超声波初始化
   IIC_Init();			
 	OLED_Init();
 //  MPU_Init();					//初始化MPU6050
 	LED_Init();		  			//初始化与LED
-	//NRF24L01_Init();    		//初始化NRF24L01 
+	LED=1;
+	BEEP=0;
+	NRF24L01_Init();    		//初始化NRF24L01 
 	
-//	while(NRF24L01_Check()) 
-//  {
-//	  OLED_ShowString(1,1,"NRF24L01 Error");
-//		delay_ms(200);
-//			
-//		OLED_ShowString(1,1,"              ");
-// 		delay_ms(200);
-//		
-//	}
-	OLED_ShowString(1,1,"NRF24L01 OK");
+	while(NRF24L01_Check()) 
+  {
+	  OLED_ShowString(0,0,"NRF24L01 Error",8);
+		delay_ms(200);
+	  OLED_ShowString(0,0,"              ",8);
+ 		delay_ms(200);
+	}
+	OLED_ShowString(0,0,"NRF24L01 OK",8);
 	delay_ms(1000);
-	OLED_ShowString(1,1,"           ");
+	OLED_ShowString(1,1,"           ",8);
 	
 //	while(mpu_dmp_init())
 // 	{
@@ -59,50 +59,50 @@ int main(void)
 	{
 		if(mode==0)//RX模式
 	  {
-			OLED_ShowString(1,1,"NRF24L01 RX_Mode");	
-			OLED_ShowString(2,1,"Received DATA:");	
-			NRF24L01_RX_Mode();		  
-			while(1)
-			{	  		    		    				 
-				if(NRF24L01_RxPacket(tmp_buf)==0)//一旦接收到信息,则显示出来.
-				{
-					OLED_ShowChar(3,1,tmp_buf[0]);
-				}
-				else 
-			  {
-					delay_us(100);	   
-				}
-				t++;
-				if(t==10000)//大约1s钟改变一次状态
-				{
-					t=0;
-					LED=!LED;
-				} 				    
-			};	
-	  }
-		else//TX模式
-		{							    
-			OLED_ShowString(1,1,"NRF24L01 TX_Mode");	
-			NRF24L01_TX_Mode();
-      tmp_buf[0]=num;
-			while(1)
-			{	  	
-				tmp_buf[0] = num++;
-				if(NRF24L01_TxPacket(tmp_buf)==TX_OK)
-				{
-					OLED_ShowString(2,1,"Sended DATA:");
-					OLED_ShowChar(3,1,tmp_buf[0]);
-				}
-				else
-				{										   	
-					OLED_ShowString(3,1," "); 	   ;     //清空显示			   
-					OLED_ShowString(4,1,"Send Failed "); 
-				};
-				LED=!LED;
-				
-				delay_ms(500);				    
-			};
-		} 				    
+//			OLED_ShowString(1,1,"NRF24L01 RX_Mode");	
+//			OLED_ShowString(2,1,"Received DATA:");	
+//			NRF24L01_RX_Mode();		  
+//			while(1)
+//			{	  		    		    				 
+//				if(NRF24L01_RxPacket(tmp_buf)==0)//一旦接收到信息,则显示出来.
+//				{
+//					OLED_ShowChar(3,1,tmp_buf[0]);
+//				}
+//				else 
+//			  {
+//					delay_us(100);	   
+//				}
+//				t++;
+//				if(t==10000)//大约1s钟改变一次状态
+//				{
+//					t=0;
+//					LED=!LED;
+//				} 				    
+//			};	
+//	  }
+//		else//TX模式
+//		{							    
+//			OLED_ShowString(1,1,"NRF24L01 TX_Mode");	
+//			NRF24L01_TX_Mode();
+//      tmp_buf[0]=num;
+//			while(1)
+//			{	  	
+//				tmp_buf[0] = num++;
+//				if(NRF24L01_TxPacket(tmp_buf)==TX_OK)
+//				{
+//					OLED_ShowString(2,1,"Sended DATA:");
+//					OLED_ShowChar(3,1,tmp_buf[0]);
+//				}
+//				else
+//				{										   	
+//					OLED_ShowString(3,1," "); 	   ;     //清空显示			   
+//					OLED_ShowString(4,1,"Send Failed "); 
+//				};
+//				LED=!LED;
+//				
+//				delay_ms(500);				    
+//			};
+//		} 				    
 
 		
 		
@@ -178,7 +178,7 @@ int main(void)
 //				t=0;
 //				LED=!LED;//LED闪烁
 //			}
-//		}
+		}
 //		t++;
 	}
 }

@@ -10,19 +10,14 @@
 #define Reduction_Ratio  30.0			//减速比30
 #define Perimeter  210.4867 			//周长，单位mm
 
-#define Middle_angle 1
-#define DIFFERENCE 100
-
-void EXTI15_10_IRQHandler(void);
-int Balance(float Angle,float Gyro);
+#define Middle_angle 0
+int EXTI15_10_IRQHandler(void);
+int Balance(float angle,float gyro);
 int Velocity(int encoder_left,int encoder_right);
-int Turn(float gyro);
 void Set_Pwm(int motor_left,int motor_right);
+void Key(void);
 int PWM_Limit(int IN,int max,int min);
-void Get_Angle(u8 way);
+u8 Turn_Off(float angle);
+void Get_Angle(void);
 int myabs(int a);
-int Pick_Up(float Acceleration,float Angle,int encoder_left,int encoder_right);
-int Put_Down(float Angle,int encoder_left,int encoder_right);
-u8 Turn_Off(float angle/*, int voltage*/);
-void Choose(int encoder_left,int encoder_right);
 #endif

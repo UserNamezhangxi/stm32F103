@@ -10,25 +10,28 @@
 #include "usart.h"
 #include <math.h>
 #include "gui.h"
+#include "oled.h"
 
 int main()
 {
-    u8 index=1,key=0;
+	u8 index=1,key=0;
 	delay_init();
-    beep_init();
-	led_init();
-	key_init();
-	usart_init(72,115200);
-    RTC_Init();
-    OLED_Init();
+//	beep_init();
+//	led_init();
+//	key_init();
+//	usart_init(72,115200);
+	//RTC_Init();
+	OLED_Init();
 	OLED_ColorTurn(0);//0正常显示，1 反色显示
-    OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示
-	
+	OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示
+	OLED_Refresh();
+	OLED_Clear();
+	OLED_ShowString(0,0, "1.Switch:ON",16,0);
 	while(1)
 	{
-        OLED_Refresh();
+        //OLED_Refresh();
        //OLED_Clear();
-        GUI_Refresh();
+        //GUI_Refresh();
 //        OLED_ShowNum(35,24,2022,4,16, 0);
 //        OLED_ShowNum(67,24,11,2,16, 1);
         //OLED_ShowNum(43,24,11,2,16, 1);

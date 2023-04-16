@@ -95,7 +95,7 @@
 //#define MPU_READ    0XD1
 //#define MPU_WRITE   0XD0
 
-
+extern float Pitch,Roll,Yaw; 
 extern	short gyro[3], accel[3];
 
 

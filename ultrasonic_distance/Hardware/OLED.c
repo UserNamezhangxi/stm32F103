@@ -1,7 +1,7 @@
 #include "stm32f10x.h"
 #include "OLED_Font.h"
 #include "IIC.h"
-
+#include "oled.h"
 /**
   * @brief  I2C发送一个字节
   * @param  Byte 要发送的一个字节
@@ -86,6 +86,22 @@ void OLED_Clear(void)
 	}
 }
 
+
+//m^nº¯Êý
+u32 oled_pow(u8 m,u8 n)
+{
+	u32 result=1;	 
+	while(n--)result*=m;    
+	return result;
+}	
+
+void OLED_Set_Pos(unsigned char x, unsigned char y) 
+{ 
+	OLED_WriteCommand(0xb0+y);
+	OLED_WriteCommand(((x&0xf0)>>4)|0x10);
+	OLED_WriteCommand((x&0x0f)); 
+}   	  
+
 /**
   * @brief  OLED显示一个字符
   * @param  Line 行位置，范围：1~4
@@ -93,136 +109,80 @@ void OLED_Clear(void)
   * @param  Char 要显示的一个字符，范围：ASCII可见字符
   * @retval 无
   */
-void OLED_ShowChar(uint8_t Line, uint8_t Column, char Char)
+void OLED_ShowChar(u8 x,u8 y,u8 chr,u8 Char_Size)
 {      	
-	uint8_t i;
-	OLED_SetCursor((Line - 1) * 2, (Column - 1) * 8);		//设置光标位置在上半部分
-	for (i = 0; i < 8; i++)
-	{
-		OLED_WriteData(OLED_F8x16[Char - ' '][i]);			//显示上半部分内容
-	}
-	OLED_SetCursor((Line - 1) * 2 + 1, (Column - 1) * 8);	//设置光标位置在下半部分
-	for (i = 0; i < 8; i++)
-	{
-		OLED_WriteData(OLED_F8x16[Char - ' '][i + 8]);		//显示下半部分内容
-	}
+	unsigned char c=0,i=0;	
+		c=chr-' ';//µÃµ½Æ«ÒÆºóµÄÖµ			
+		if(x>Max_Column-1){x=0;y=y+2;}
+		if(Char_Size ==16)
+			{
+				OLED_Set_Pos(x,y);	
+				for(i=0;i<8;i++)
+				OLED_WriteData(F8X16[c*16+i]);
+				OLED_Set_Pos(x,y+1);
+				for(i=0;i<8;i++)
+				OLED_WriteData(F8X16[c*16+i+8]);
+			}
+			else {	
+				OLED_Set_Pos(x,y);
+				for(i=0;i<6;i++)
+				OLED_WriteData(F6x8[c][i]);
+			}
 }
 
-/**
-  * @brief  OLED显示字符串
-  * @param  Line 起始行位置，范围：1~4
-  * @param  Column 起始列位置，范围：1~16
-  * @param  String 要显示的字符串，范围：ASCII可见字符
-  * @retval 无
-  */
-void OLED_ShowString(uint8_t Line, uint8_t Column, char *String)
-{
-	uint8_t i;
-	for (i = 0; String[i] != '\0'; i++)
-	{
-		OLED_ShowChar(Line, Column + i, String[i]);
-	}
-}
 
-/**
-  * @brief  OLED次方函数
-  * @retval 返回值等于X的Y次方
-  */
-uint32_t OLED_Pow(uint32_t X, uint32_t Y)
-{
-	uint32_t Result = 1;
-	while (Y--)
+//ÏÔÊ¾2¸öÊý×Ö
+//x,y :Æðµã×ø±ê	 
+//len :Êý×ÖµÄÎ»Êý
+//size:×ÖÌå´óÐ¡
+//mode:Ä£Ê½	0,Ìî³äÄ£Ê½;1,µþ¼ÓÄ£Ê½
+//num:ÊýÖµ(0~4294967295);	 		  
+void OLED_ShowNum(u8 x,u8 y,u32 num,u8 len,u8 size2)
+{         	
+	u8 t,temp;
+	u8 enshow=0;						   
+	for(t=0;t<len;t++)
 	{
-		Result *= X;
-	}
-	return Result;
-}
-
-/**
-  * @brief  OLED显示数字（十进制，正数）
-  * @param  Line 起始行位置，范围：1~4
-  * @param  Column 起始列位置，范围：1~16
-  * @param  Number 要显示的数字，范围：0~4294967295
-  * @param  Length 要显示数字的长度，范围：1~10
-  * @retval 无
-  */
-void OLED_ShowNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Length)
-{
-	uint8_t i;
-	for (i = 0; i < Length; i++)							
-	{
-		OLED_ShowChar(Line, Column + i, Number / OLED_Pow(10, Length - i - 1) % 10 + '0');
-	}
-}
-
-/**
-  * @brief  OLED显示数字（十进制，带符号数）
-  * @param  Line 起始行位置，范围：1~4
-  * @param  Column 起始列位置，范围：1~16
-  * @param  Number 要显示的数字，范围：-2147483648~2147483647
-  * @param  Length 要显示数字的长度，范围：1~10
-  * @retval 无
-  */
-void OLED_ShowSignedNum(uint8_t Line, uint8_t Column, int32_t Number, uint8_t Length)
-{
-	uint8_t i;
-	uint32_t Number1;
-	if (Number >= 0)
-	{
-		OLED_ShowChar(Line, Column, '+');
-		Number1 = Number;
-	}
-	else
-	{
-		OLED_ShowChar(Line, Column, '-');
-		Number1 = -Number;
-	}
-	for (i = 0; i < Length; i++)							
-	{
-		OLED_ShowChar(Line, Column + i + 1, Number1 / OLED_Pow(10, Length - i - 1) % 10 + '0');
-	}
-}
-
-/**
-  * @brief  OLED显示数字（十六进制，正数）
-  * @param  Line 起始行位置，范围：1~4
-  * @param  Column 起始列位置，范围：1~16
-  * @param  Number 要显示的数字，范围：0~0xFFFFFFFF
-  * @param  Length 要显示数字的长度，范围：1~8
-  * @retval 无
-  */
-void OLED_ShowHexNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Length)
-{
-	uint8_t i, SingleNumber;
-	for (i = 0; i < Length; i++)							
-	{
-		SingleNumber = Number / OLED_Pow(16, Length - i - 1) % 16;
-		if (SingleNumber < 10)
+		temp=(num/oled_pow(10,len-t-1))%10;
+		if(enshow==0&&t<(len-1))
 		{
-			OLED_ShowChar(Line, Column + i, SingleNumber + '0');
+			if(temp==0)
+			{
+				OLED_ShowChar(x+(size2/2)*t,y,' ',size2);
+				continue;
+			}else enshow=1; 
+		 	 
 		}
-		else
-		{
-			OLED_ShowChar(Line, Column + i, SingleNumber - 10 + 'A');
-		}
+	 	OLED_ShowChar(x+(size2/2)*t,y,temp+'0',size2); 
+	}
+} 
+//ÏÔÊ¾Ò»¸ö×Ö·ûºÅ´®
+void OLED_ShowString(u8 x,u8 y,u8 *chr,u8 Char_Size)
+{
+	unsigned char j=0;
+	while (chr[j]!='\0')
+	{		OLED_ShowChar(x,y,chr[j],Char_Size);
+			x+=8;
+		if(x>120){x=0;y+=2;}
+			j++;
 	}
 }
-
-/**
-  * @brief  OLED显示数字（二进制，正数）
-  * @param  Line 起始行位置，范围：1~4
-  * @param  Column 起始列位置，范围：1~16
-  * @param  Number 要显示的数字，范围：0~1111 1111 1111 1111
-  * @param  Length 要显示数字的长度，范围：1~16
-  * @retval 无
-  */
-void OLED_ShowBinNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Length)
-{
-	uint8_t i;
-	for (i = 0; i < Length; i++)							
-	{
-		OLED_ShowChar(Line, Column + i, Number / OLED_Pow(2, Length - i - 1) % 2 + '0');
-	}
+//ÏÔÊ¾ºº×Ö
+void OLED_ShowCHinese(u8 x,u8 y,u8 no)
+{      			    
+	u8 t,adder=0;
+	OLED_Set_Pos(x,y);	
+    for(t=0;t<16;t++)
+		{
+				OLED_WriteData(Hzk[2*no][t]);
+				adder+=1;
+     }	
+		OLED_Set_Pos(x,y+1);	
+    for(t=0;t<16;t++)
+			{	
+				OLED_WriteData(Hzk[2*no+1][t]);
+				adder+=1;
+      }					
 }
 
 /**

@@ -45,3 +45,17 @@ void JTAG_Set(u8 mode)
 	AFIO->MAPR&=0XF8FFFFFF; //清除MAPR的[26:24]
 	AFIO->MAPR|=temp;       //设置jtag模式
 } 
+
+void MY_NVIC_PriorityGroupConfig(u8 NVIC_Group)	 
+{ 
+	u32 temp,temp1;	  
+	temp1=(~NVIC_Group)&0x07;//È¡ºóÈýÎ»
+	temp1<<=8;
+	temp=SCB->AIRCR;  //¶ÁÈ¡ÏÈÇ°µÄÉèÖÃ
+	temp&=0X0000F8FF; //Çå¿ÕÏÈÇ°·Ö×é
+	temp|=0X05FA0000; //Ð´ÈëÔ¿³×
+	temp|=temp1;	   
+	SCB->AIRCR=temp;  //ÉèÖÃ·Ö×é	    	  				   
+}
+
+
