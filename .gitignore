@@ -1,6 +1,8 @@
 Listings/
 Objects/
 Output/
+OBJ/
+*/Objects/
 *JLinkLog.txt
 *.ini
 *.张曦

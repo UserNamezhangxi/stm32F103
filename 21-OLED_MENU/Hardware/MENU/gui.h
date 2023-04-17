@@ -1,7 +1,7 @@
 #ifndef _GUI_H_
 #define _GUI_H_
 
-
+#include "sys,h"
 #include "stm32f10x.h"
 
 #define ON 1
