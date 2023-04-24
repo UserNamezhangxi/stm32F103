@@ -6,3 +6,5 @@ OBJ/
 *JLinkLog.txt
 *.ini
 *.张曦
+*.map
+.vscode*
