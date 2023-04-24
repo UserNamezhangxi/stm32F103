@@ -105,6 +105,19 @@ All rights reserved
 #define JTAG_SWD_DISABLE   0X02
 #define SWD_ENABLE         0X01
 #define JTAG_SWD_ENABLE    0X00	
+
+
+#define MUSIC_PLAY                        "A2" //播放
+#define MUSIC_PAUSE                       "A3" //暂停
+#define MUSIC_STOP                        "A4" //停止
+#define MUSIC_PRE                         "A5" //上一曲
+#define MUSIC_NEXT                        "A6" //下一曲
+#define MUSIC_VOLUME_ADD                  "B0" //音量+
+#define MUSIC_VOLUME_SUB                  "B1" //音量-
+#define MUSIC_PLAY_MODE_LOOP_ALL          "B4:00" // 全盘循环(00)：按顺序播放全盘曲目,播放完后循环播放
+#define MUSIC_PLAY_MODE_LOOP_SINGLE       "B4:01" // 单曲循环(01)：一直循环播放当前曲目
+#define MUSIC_PLAY_MODE_RANDOM            "B4:03" // 全盘随机(03)：随机播放盘符内曲目
+
 extern u8 Way_Angle;                                       				 //获取角度的算法，1：四元数  2：卡尔曼  3：互补滤波
 extern int Motor_Left,Motor_Right;                                 //电机PWM变量 应是motor的 向moto致敬	
 extern u8 Flag_front,Flag_back,Flag_Left,Flag_Right,Flag_velocity; //蓝牙遥控相关的变量
@@ -112,7 +125,7 @@ extern u8 Flag_Stop,Flag_Show;                               			 //停止标志位和 
 extern int Voltage;               																 //电池电压采样相关的变量
 extern float Angle_Balance,Gyro_Balance,Gyro_Turn;     						 //平衡倾角 平衡陀螺仪 转向陀螺仪
 extern int Temperature;
-extern u32 Distance;                                          		//超声波测距
+extern u32 Distance;                                          		 //超声波测距
 extern u8 Flag_follow,Flag_avoid,delay_50,delay_flag,PID_Send;
 extern float Acceleration_Z;                       //Z轴加速度计  
 extern float Balance_Kp,Balance_Kd,Velocity_Kp,Velocity_Ki,Turn_Kp,Turn_Kd;

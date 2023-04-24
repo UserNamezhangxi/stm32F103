@@ -2,15 +2,15 @@
 公司：轮趣科技（东莞）有限公司
 品牌：WHEELTEC
 官网：wheeltec.net
-淘宝店铺：shop114407458.taobao.com 
+淘宝店铺：shop114407458.taobao.com
 速卖通: https://minibalance.aliexpress.com/store/4455017
 版本：5.7
 修改时间：2021-04-29
 
- 
+
 Brand: WHEELTEC
 Website: wheeltec.net
-Taobao shop: shop114407458.taobao.com 
+Taobao shop: shop114407458.taobao.com
 Aliexpress: https://minibalance.aliexpress.com/store/4455017
 Version:5.7
 Update：2021-04-29
@@ -18,7 +18,32 @@ Update：2021-04-29
 All rights reserved
 ***********************************************/
 #include "usart3.h"
-u8 Usart3_Receive;
+uint8_t Usart3_Receive;
+u16 USART_RX_STA = 0;			//接收状态标记
+u8 USART_RX_BUF[USART_REC_LEN]; //接收缓冲,最大USART_REC_LEN个字节.
+#if 1
+#pragma import(__use_no_semihosting)
+//标准库需要的支持函数
+struct __FILE
+{
+	int handle;
+};
+
+FILE __stdout;
+//定义_sys_exit()以避免使用半主机模式
+_sys_exit(int x)
+{
+	x = x;
+}
+//重定义fputc函数
+int fputc(int ch, FILE *f)
+{
+	while ((USART3->SR & 0X40) == 0);
+	USART3->DR = (u8)ch;
+	return ch;
+}
+#endif
+
 /**************************************************************************
 Function: Usart3 initialization
 Input   : bound:Baud rate
@@ -28,43 +53,94 @@ Output  : none
 返回  值：无
 **************************************************************************/
 void uart3_init(u32 bound)
-{  	 
-	  //GPIO端口设置
-  GPIO_InitTypeDef GPIO_InitStructure;
+{
+	// GPIO端口设置
+	GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
-	 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);	//使能UGPIOB时钟
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);	//使能USART3时钟
-	//USART3_TX  
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10; //PB.10
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//复用推挽输出
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-   
-  //USART3_RX	  
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;//PB11
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//浮空输入
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-  //Usart3 NVIC 配置
-  NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0 ;//抢占优先级
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		//子优先级
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
-	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器
-   
-   //USART 初始化设置
-	USART_InitStructure.USART_BaudRate = bound;//串口波特率
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;//字长为8位数据格式
-	USART_InitStructure.USART_StopBits = USART_StopBits_1;//一个停止位
-	USART_InitStructure.USART_Parity = USART_Parity_No;//无奇偶校验位
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//无硬件数据流控制
-	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;	//收发模式
-  USART_Init(USART3, &USART_InitStructure);     //初始化串口3
-  USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);//开启串口接受中断
-  USART_Cmd(USART3, ENABLE);                    //使能串口3 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);  //使能UGPIOB时钟
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE); //使能USART3时钟
+														   // USART3_TX
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;			   // PB.10
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; //复用推挽输出
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
+	// USART3_RX
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;			  // PB11
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING; //浮空输入
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	// Usart3 NVIC 配置
+	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0; //抢占优先级
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		  //子优先级
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			  // IRQ通道使能
+	NVIC_Init(&NVIC_InitStructure);							  //根据指定的参数初始化VIC寄存器
+
+	USART_InitStructure.USART_BaudRate = bound;										//
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;						//
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;							//
+	USART_InitStructure.USART_Parity = USART_Parity_No;								//?TD￡?é??
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None; //
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;					//
+
+	/* Configure USART3 */
+	USART_Init(USART3, &USART_InitStructure); //
+	/* Enable USART3 Receive and Transmit interrupts */
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE); //
+	// USART_ITConfig(USART2, USART_IT_IDLE, ENABLE);//
+	/* Enable the USART3 */
+	USART_Cmd(USART3, ENABLE); //
+}
+
+void USART3_Send(uint8_t *s) //发送字符串函数
+{
+	while (*s)
+	{
+		while (USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
+		USART_SendData(USART3, *s);
+		s++;
+	}
+}
+
+void USART3_IRQHandler(void)
+{
+
+	u8 Res;
+
+	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) //接收中断(接收到的数据必须是0x0d 0x0a结尾)
+	{
+		Res = USART_ReceiveData(USART3); //读取接收到的数据
+
+		if ((USART_RX_STA & 0x8000) == 0) //接收未完成
+		{
+			if (USART_RX_STA & 0x4000) //接收到了0x0d
+			{
+				if (Res != 0x0a)
+					USART_RX_STA = 0; //接收错误,重新开始
+				else
+				{
+					USART_RX_STA |= 0x8000; //接收完成了
+//					USART3_Send(USART_RX_BUF);
+//					USART_RX_STA = 0;
+				}
+			}
+			else //还没收到0X0D
+			{
+				if (Res == 0x0d)
+					USART_RX_STA |= 0x4000;
+				else
+				{
+					USART_RX_BUF[USART_RX_STA & 0X3FFF] = Res;
+					USART_RX_STA++;
+					if (USART_RX_STA > (USART_REC_LEN - 1))
+						USART_RX_STA = 0; //接收数据错误,重新开始接收
+				}
+			}
+		}
+	}
 }
 
 /**************************************************************************
@@ -75,6 +151,7 @@ Output  : none
 入口参数：无
 返回  值：无
 **************************************************************************/
+#if 0
 void USART3_IRQHandler(void)
 {	
 	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) //接收到数据
@@ -186,6 +263,7 @@ void USART3_IRQHandler(void)
 //					Data=0;
 //					memset(Receive, 0, sizeof(u8)*50);//数组清零
 //		 } 
-	}  											 
-} 
+	}  
 
+}
+#endif
