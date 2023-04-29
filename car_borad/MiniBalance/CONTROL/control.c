@@ -1,5 +1,4 @@
 #include "control.h"	
-
 /**************************************************************************
 Function: Control function
 Input   : none
@@ -24,7 +23,7 @@ int EXTI15_10_IRQHandler(void)
 		Encoder_Left=-Read_Encoder(2);            					//读取左轮编码器的值，前进为正，后退为负
 		Encoder_Right=Read_Encoder(4);           					//读取右轮编码器的值，前进为正，后退为负
 																												//左轮A相接TIM2_CH1,右轮A相接TIM4_CH2,故这里两个编码器的极性相同
-		//Get_Velocity_Form_Encoder(Encoder_Left,Encoder_Right);//编码器读数转速度（mm/s）
+		Get_Velocity_Form_Encoder(Encoder_Left,Encoder_Right);//编码器读数转速度（mm/s）
 //		if(delay_flag==1)
 //		{
 //			if(++delay_50==10)	 delay_50=0,delay_flag=0;  		//给主函数提供50ms的精准延时，示波器需要50ms高精度延时
@@ -41,9 +40,9 @@ int EXTI15_10_IRQHandler(void)
 //		if(Flag_follow==0&&Flag_avoid==0)	Led_Flash(100);   //LED闪烁;常规模式 1s改变一次指示灯的状态	
 //		if(Flag_follow==1||Flag_avoid==1)	Led_Flash(0);     //LED常亮;超声波跟随/避障模式	
 		Key();                                    					//扫描按键状态 单击双击可以改变小车运行状态
-	    Balance_Pwm=Balance(Angle_Balance,Gyro_Balance);    //平衡PID控制 Gyro_Balance平衡角速度极性：前倾为正，后倾为负
+		Balance_Pwm=Balance(Angle_Balance,Gyro_Balance);    //平衡PID控制 Gyro_Balance平衡角速度极性：前倾为正，后倾为负
 		Velocity_Pwm=Velocity(Encoder_Left,Encoder_Right);  //速度环PID控制	记住，速度反馈是正反馈，就是小车快的时候要慢下来就需要再跑快一点
-		//Turn_Pwm=Turn(Gyro_Turn);														//转向环PID控制     
+		Turn_Pwm=Turn(Gyro_Turn);														//转向环PID控制     
 		
 		Motor_Left=Balance_Pwm+Velocity_Pwm+Turn_Pwm;       //计算左轮电机最终PWM
 		Motor_Right=Balance_Pwm+Velocity_Pwm-Turn_Pwm;      //计算右轮电机最终PWM
@@ -52,7 +51,7 @@ int EXTI15_10_IRQHandler(void)
 		Motor_Right=PWM_Limit(Motor_Right,6900,-6900);			//PWM限幅
 		if(Pick_Up(Acceleration_Z,Angle_Balance,Encoder_Left,Encoder_Right))//检查是否小车被拿起
 			Flag_Stop=1;	                           					//如果被拿起就关闭电机
-		if(Put_Down(Angle_Balance,Encoder_Left,Encoder_Right))  //检查是否小车被放下
+		if(Put_Down(Angle_Balance,Encoder_Left,Encoder_Right))          //检查是否小车被放下
 			Flag_Stop=0;	                           					//如果被放下就启动电机
 		Choose(Encoder_Left,Encoder_Right);									//转动右轮选择小车模式
 		if(Turn_Off(Angle_Balance,Voltage)==0)     					//如果不存在异常
@@ -130,42 +129,19 @@ Output  : Turn control PWM
 **************************************************************************/
 int Turn(float gyro)
 {
-	 static float Turn_Target,turn,Turn_Amplitude=40;
-	 float Kp=Turn_Kp,Kd=0;			//修改转向速度，请修改Turn_Amplitude即可
-	 //===================遥控左右旋转部分=================//
-	 if(1==Flag_Left)	
-	 {
- 		   Turn_Target=-Turn_Amplitude/Flag_velocity;
-		   Kp=Turn_Kp;
-		   Kd=0;
-	 }
-	 else if(1==Flag_Right)
-   {
-		   Turn_Target=Turn_Amplitude/Flag_velocity;
-		   Kp=Turn_Kp;
-		   Kd=0;
-	 }
-	 else 
-	 {
-		   Turn_Target=0;
-	     Kp=0;
-		   Kd=Turn_Kd;
-	 }
-	 
-//	 if(1 == Flag_front || 1 == Flag_back) 
-//	 {
-//		   Kd=Turn_Kd; // 正常前后的时候，加入kd 
-//		   Kp=0,Turn_Target=0;
-//	 }
-//	 else 
-//	 { 
-//		   Kp=Turn_Kp;
-//		   Kd=0;   //转向的时候取消陀螺仪的纠正 有点模糊PID的思想
-//	 }
-//	 
+	 static float Turn_Target,turn,Turn_Amplitude=54;
+	 float Kp=Turn_Kp,Kd;			//修改转向速度，请修改Turn_Amplitude即可
+//	//===================遥控左右旋转部分=================//
+//	 if(1==Flag_Left)	        Turn_Target=-Turn_Amplitude/Flag_velocity;
+//	 else if(1==Flag_Right)	  Turn_Target=Turn_Amplitude/Flag_velocity; 
+//	 else Turn_Target=0;
+//	 if(1==Flag_front||1==Flag_back)  Kd=Turn_Kd;        
+//	 else Kd=0;   //转向的时候取消陀螺仪的纠正 有点模糊PID的思想
   //===================转向PD控制器=================//
-	// printf("Turn_Target = %f,Turn_Kp=%f, gyro= %f ,Turn_Kd=%f\r\n",Turn_Target,Turn_Kp,gyro,Turn_Kd);
-	 turn = Turn_Target*Kp + gyro*Kd;//结合Z轴陀螺仪进行PD控制
+	 
+	 turn=Turn_Target*Kp+gyro*Turn_Kd;//结合Z轴陀螺仪进行PD控制
+	 printf("Turn_Target = %f,Turn_Kp=%f, gyro= %f ,Turn_Kd=%f turn=%f\r\n",Turn_Target,Turn_Kp,gyro,Turn_Kd,turn);
+
 	 return turn;								 				 //转向环PWM右转为正，左转为负
 }
 

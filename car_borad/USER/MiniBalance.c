@@ -32,29 +32,28 @@ u8 Flag_follow = 0, Flag_avoid = 0;									//超声波跟随、超声波壁障标志位
 float Acceleration_Z;												// Z轴加速度计
 // float Balance_Kp=540,Balance_Kd=1.5,Velocity_Kp=220,Velocity_Ki=1.1,Turn_Kp=42,Turn_Kd=-1;//PID参数（放大100倍）
 // float Balance_Kp=780*0.6,Balance_Kd=2.3*0.6,Velocity_Kp=1200,Velocity_Ki=6,Turn_Kp=0,Turn_Kd=0;//PID参数（放大100倍）
-float Balance_Kp = 540, Balance_Kd = 1.5, Velocity_Kp = 220, Velocity_Ki = 1.1, Turn_Kp = 0, Turn_Kd = 0; // PID参数（放大100倍）
+float Balance_Kp=600,Balance_Kd=1.44,Velocity_Kp=200,Velocity_Ki=1,Turn_Kp=0,Turn_Kd=1;//PID参数（放大100倍）
 u8 tmp_buf[33], mode = 0;
 int main(void)
-{
-	//  MY_NVIC_PriorityGroupConfig(2);	//设置中断分组
- 	delay_init();				   //延时函数初始化
-	JTAG_Set(JTAG_SWD_DISABLE);	   //关闭JTAG接口
-	JTAG_Set(SWD_ENABLE);		   //打开SWD接口 可以利用主板的SWD接口调试
-	LED_Init();					   //初始化与 LED 连接的硬件接口
-//	KEY_Init();					   //按键初始化
-//	MiniBalance_PWM_Init(7199, 0); //初始化PWM 10KHZ与电机硬件接口，用于驱动电机
-//	uart_init(115200);			   //串口1初始化
-	uart3_init(9600);			   //串口3初始化，音频控制
-
-	//	Encoder_Init_TIM2();            //编码器接口
-	//	Encoder_Init_TIM4();            //初始化编码器4
-	//	Adc_Init();                     //adc初始化
-	//	IIC_Init();                     //IIC初始化
-	//	OLED_Init();                    //OLED初始化
-	//	MPU6050_initialize();           //MPU6050初始化
-	//	DMP_Init();                     //初始化DMP
-	//    TIM3_Cap_Init(0XFFFF,72-1);	    //超声波初始化
-	//	MiniBalance_EXTI_Init();        //MPU6050 5ms定时中断初始化，节省定时器资源，减少cpu负担
+{ 
+    MY_NVIC_PriorityGroupConfig(2);	//设置中断分组
+	delay_init();	    	            //延时函数初始化	
+	JTAG_Set(JTAG_SWD_DISABLE);     //关闭JTAG接口
+	JTAG_Set(SWD_ENABLE);           //打开SWD接口 可以利用主板的SWD接口调试
+	LED_Init();                     //初始化与 LED 连接的硬件接口
+	KEY_Init();                     //按键初始化
+	MiniBalance_PWM_Init(7199,0);   //初始化PWM 10KHZ与电机硬件接口，用于驱动电机
+	uart_init(115200);	            //串口1初始化
+	uart3_init(9600);             	//串口3初始化，用于蓝牙模块
+	Encoder_Init_TIM2();            //编码器接口
+	Encoder_Init_TIM4();            //初始化编码器4
+	Adc_Init();                     //adc初始化
+	IIC_Init();                     //IIC初始化
+	//OLED_Init();                    //OLED初始化	    
+	MPU6050_initialize();           //MPU6050初始化	
+	DMP_Init();                     //初始化DMP 
+	//TIM3_Cap_Init(0XFFFF,72-1);	    //超声波初始化
+	MiniBalance_EXTI_Init();        //MPU6050 5ms定时中断初始化，节省定时器资源，减少cpu负担
 	//	NRF24L01_Init();    			//初始化NRF24L01
 	//
 	//	while(NRF24L01_Check())
@@ -69,17 +68,17 @@ int main(void)
 	// OLED_ShowString(1,1,"           ",8);
 	
 	// 音乐模块初始化
-	delay_ms(1000);
-	USART3_Send(MUSIC_PLAY);
-	delay_ms(100);
-	USART3_Send(MUSIC_PLAY_MODE_LOOP_ALL);
-  delay_ms(100);
-	USART3_Send("AF:15"); //初始化音量25 (0-30)
+//	delay_ms(1000);
+//	USART3_Send(MUSIC_PLAY);
+//	delay_ms(100);
+//	USART3_Send(MUSIC_PLAY_MODE_LOOP_ALL);
+//	delay_ms(100);
+//	USART3_Send("AF:15"); //初始化音量25 (0-30)
 	
 	while (1)
 	{
 		//USART3_Send(MUSIC_NEXT);
-		delay_ms(1000);
+		delay_ms(100);
 		LED=!LED;
 		//		if(mode==0) //RX模式
 		//	 	{
