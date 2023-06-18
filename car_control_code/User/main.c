@@ -7,101 +7,103 @@
 #include "AD.h"
 #include "Encoder.h"
 
-u8 mode = 1;
+u8 mode = 0;
 
 int main(void)
 {
 	u8 key = 0;
 	u8 tmp_buf[33];
-	NRF24L01_Init(); //³õÊ¼»¯NRF24L01
+	NRF24L01_Init(); // åˆå§‹åŒ–NRF24L01
 	Key_Init();
 	delay_init();
 	LED_Init();
-	AD_Init();
+	// AD_Init();
 	OLED_Init();
-	OLED_ColorTurn(0);	 // 0Õı³£ÏÔÊ¾£¬1 ·´É«ÏÔÊ¾
-	OLED_DisplayTurn(0); // 0Õı³£ÏÔÊ¾ 1 ÆÁÄ»·­×ªÏÔÊ¾
-	Encoder_Init();
-	//	while (NRF24L01_Check())
-	//	{
-	//		OLED_ShowString(0, 0, "NRF24L01 Error", 8);
-	//		LED = 0;
-	//		delay_ms(200);
-	//		OLED_ShowString(0, 0, "           ", 8);
-	//		delay_ms(200);
-	//		LED = 1;
-	//	}
+	OLED_ColorTurn(0);	 // 0æ­£å¸¸æ˜¾ç¤ºï¼Œ1 åè‰²æ˜¾ç¤º
+	OLED_DisplayTurn(0); // 0æ­£å¸¸æ˜¾ç¤º 1 å±å¹•ç¿»è½¬æ˜¾ç¤º
+ // Encoder_Init();
+	while (NRF24L01_Check())
+	{
+		OLED_ShowString(0, 0, "NRF24L01 Error", 8, 1);
+		LED = 0;
+		delay_ms(200);
+		OLED_ShowString(0, 0, "           ", 8, 1);
+		delay_ms(200);
+		LED = 1;
+	}
 
-	//	OLED_ShowString(0,0,"NRF CHECK OK!",8);
-	//	delay_ms(1000);
-
-	OLED_ShowString(0, 0, "ADC Init OK!", 8, 1);
+	OLED_ShowString(0, 0, "NRF CHECK OK!", 8, 1);
 	delay_ms(1000);
-	OLED_Clear();
+
+	//	OLED_ShowString(0, 0, "ADC Init OK!", 8, 1);
+	//	delay_ms(1000);
+	//	OLED_Clear();
 
 	while (1)
 	{
-		// ·½Ïò¼ü
+		// æ–¹å‘é”®
 		// OLED_ShowNum(0,1,Vertical(), 4, 8);
 		// OLED_ShowNum(0,2,Horizontal(), 4, 8);
 
-		// ÒôÁ¿¿ØÖÆ
-		int volume = Encoder_Get() / 4 + 20; // ±àÂëÆ÷ËÄÏß ËùÒÔ³ıÒÔ4 µÃµ½Ã¿×ªÒ»´ÎµÄ¼Ç´Î
-		if (volume < 0)
-		{
-			volume = 0;
-		}
-		else if (volume > 30)
-		{
-			volume = 30;
-		}
-		OLED_ShowNum(0, 0, volume, 2, 8, 1);
-
-		//		NRF2401 Ä£Ê½¿ØÖÆ£¨ÊÕ·¢£©
-		//		if(mode == 0) {
-		//			NRF24L01_TX_Mode();
-		//			OLED_ShowString(0, 0, "NRF24L01 TX_Mode", 8);
-		//			while (1)
-		//			{
-		//				key = Key_GetNum();
-		//				if (key != NO_KEY)
-		//				{
-		//					tmp_buf[0] = key;
-		//					if (NRF24L01_TxPacket(tmp_buf) == TX_OK)
-		//					{
-		//						OLED_ShowString(0, 1, "Sended DATA:", 8);
-		//						OLED_ShowChar(0, 2, tmp_buf[0]+0X30, 8);
-		//					}
-		//					else
-		//					{
-		//						//OLED_ShowString(0, 2, "             ", 8);
-		//						//Çå¿ÕÏÔÊ¾
-		//						OLED_ShowString(0, 2, "Send Failed ", 8);
-		//					}
-		//					LED = !LED;
-		//				}
-		//			}
-		//		}
-		//		else
+		// éŸ³é‡æ§åˆ¶
+		//		int volume = Encoder_Get() / 4 + 20; // ç¼–ç å™¨å››çº¿ æ‰€ä»¥é™¤ä»¥4 å¾—åˆ°æ¯è½¬ä¸€æ¬¡çš„è®°æ¬¡
+		//		if (volume < 0)
 		//		{
-		//			NRF24L01_RX_Mode();
-		//			OLED_ShowString(0, 0, "NRF24L01 RX_Mode", 8);
-		//
-		//			while(1) {
-		//				OLED_ShowString(0, 1, "Receive DATA:", 8);
-		//				if(NRF24L01_RxPacket(tmp_buf)==0)//Ò»µ©½ÓÊÕµ½ĞÅÏ¢,ÔòÏÔÊ¾³öÀ´.
-		//				{
-		//					OLED_ShowChar(0,2,tmp_buf[0]+0X30, 8);
-		//					LED=!LED;
-		//					delay_ms(300);
-		//					LED=!LED;
-		//					delay_ms(300);
-		//				}
-		//				else
-		//			  {
-		//					delay_us(100);
-		//				}
-		//			}
+		//			volume = 0;
 		//		}
+		//		else if (volume > 30)
+		//		{
+		//			volume = 30;
+		//		}
+		//		OLED_ShowNum(0, 0, volume, 2, 8, 1);
+
+		//		NRF2401 æ¨¡å¼æ§åˆ¶ï¼ˆæ”¶å‘ï¼‰
+		if (mode == 1)
+		{
+			NRF24L01_TX_Mode();
+			OLED_ShowString(0, 0, "NRF24L01 TX_Mode", 8, 1);
+			while (1)
+			{
+				key = Key_GetNum();
+				if (key != NO_KEY)
+				{
+					tmp_buf[0] = key;
+					if (NRF24L01_TxPacket(tmp_buf) == TX_OK)
+					{
+						OLED_ShowString(0, 1, "Sended DATA:", 8, 1);
+						OLED_ShowChar(0, 2, tmp_buf[0] + 0X30, 8, 1);
+					}
+					else
+					{
+						// OLED_ShowString(0, 2, "             ", 8,1);
+						// æ¸…ç©ºæ˜¾ç¤º
+						OLED_ShowString(0, 2, "Send Failed ", 8, 1);
+					}
+					LED = !LED;
+				}
+			}
+		}
+		else
+		{
+			NRF24L01_RX_Mode();
+			OLED_ShowString(0, 0, "NRF24L01 RX_Mode", 8, 1);
+
+			while (1)
+			{
+				OLED_ShowString(0, 1, "Receive DATA:", 8, 1);
+				if (NRF24L01_RxPacket(tmp_buf) == 0) // ä¸€æ—¦æ¥æ”¶åˆ°ä¿¡æ¯,åˆ™æ˜¾ç¤ºå‡ºæ¥.
+				{
+					OLED_ShowChar(0, 2, tmp_buf[0] + 0X30, 8, 1);
+					LED = !LED;
+					delay_ms(300);
+					LED = !LED;
+					delay_ms(300);
+				}
+				else
+				{
+					delay_us(100);
+				}
+			}
+		}
 	}
 }
