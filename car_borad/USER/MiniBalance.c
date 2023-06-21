@@ -1,11 +1,11 @@
 /***********************************************
-¹«Ë¾£ºÂÖÈ¤¿Æ¼¼£¨¶«İ¸£©ÓĞÏŞ¹«Ë¾
-Æ·ÅÆ£ºWHEELTEC
-¹ÙÍø£ºwheeltec.net
-ÌÔ±¦µêÆÌ£ºshop114407458.taobao.com
-ËÙÂôÍ¨: https://minibalance.aliexpress.com/store/4455017
-°æ±¾£º5.7
-ĞŞ¸ÄÊ±¼ä£º2021-04-29
+å…¬å¸ï¼šè½®è¶£ç§‘æŠ€ï¼ˆä¸œèï¼‰æœ‰é™å…¬å¸
+å“ç‰Œï¼šWHEELTEC
+å®˜ç½‘ï¼šwheeltec.net
+æ·˜å®åº—é“ºï¼šshop114407458.taobao.com
+é€Ÿå–é€š: https://minibalance.aliexpress.com/store/4455017
+ç‰ˆæœ¬ï¼š5.7
+ä¿®æ”¹æ—¶é—´ï¼š2021-04-29
 
 
 Brand: WHEELTEC
@@ -13,146 +13,107 @@ Website: wheeltec.net
 Taobao shop: shop114407458.taobao.com
 Aliexpress: https://minibalance.aliexpress.com/store/4455017
 Version:5.7
-Update£º2021-04-29
+Updateï¼š2021-04-29
 
 All rights reserved
 ***********************************************/
 #include "stm32f10x.h"
 #include "sys.h"
-u8 Way_Angle = 2;													//»ñÈ¡½Ç¶ÈµÄËã·¨£¬1£ºËÄÔªÊı  2£º¿¨¶ûÂü  3£º»¥²¹ÂË²¨
-u8 Flag_front, Flag_back, Flag_Left, Flag_Right, Flag_velocity = 2; //À¶ÑÀÒ£¿ØÏà¹ØµÄ±äÁ¿
-u8 Flag_Stop = 1, Flag_Show = 0;									//µç»úÍ£Ö¹±êÖ¾Î»ºÍÏÔÊ¾±êÖ¾Î»  Ä¬ÈÏÍ£Ö¹ ÏÔÊ¾´ò¿ª
-int Motor_Left, Motor_Right;										//µç»úPWM±äÁ¿ Ó¦ÊÇMotorµÄ ÏòMotoÖÂ¾´
-int Temperature;													//ÎÂ¶È±äÁ¿
-int Voltage;														//µç³ØµçÑ¹²ÉÑùÏà¹ØµÄ±äÁ¿
-float Angle_Balance, Gyro_Balance, Gyro_Turn;						//Æ½ºâÇã½Ç Æ½ºâÍÓÂİÒÇ ×ªÏòÍÓÂİÒÇ
-u32 Distance;														//³¬Éù²¨²â¾à
-u8 delay_50, delay_flag, PID_Send;									//ÑÓÊ±ºÍµ÷²ÎÏà¹Ø±äÁ¿
-u8 Flag_follow = 0, Flag_avoid = 0;									//³¬Éù²¨¸úËæ¡¢³¬Éù²¨±ÚÕÏ±êÖ¾Î»
-float Acceleration_Z;												// ZÖá¼ÓËÙ¶È¼Æ
-// float Balance_Kp=540,Balance_Kd=1.5,Velocity_Kp=220,Velocity_Ki=1.1,Turn_Kp=42,Turn_Kd=-1;//PID²ÎÊı£¨·Å´ó100±¶£©
-// float Balance_Kp=780*0.6,Balance_Kd=2.3*0.6,Velocity_Kp=1200,Velocity_Ki=6,Turn_Kp=0,Turn_Kd=0;//PID²ÎÊı£¨·Å´ó100±¶£©
-float Balance_Kp=600,Balance_Kd=1.44,Velocity_Kp=200,Velocity_Ki=1,Turn_Kp=0,Turn_Kd=1;//PID²ÎÊı£¨·Å´ó100±¶£©
+u8 Way_Angle = 2;													// è·å–è§’åº¦çš„ç®—æ³•ï¼Œ1ï¼šå››å…ƒæ•°  2ï¼šå¡å°”æ›¼  3ï¼šäº’è¡¥æ»¤æ³¢
+u8 Flag_front, Flag_back, Flag_Left, Flag_Right, Flag_velocity = 2; // è“ç‰™é¥æ§ç›¸å…³çš„å˜é‡
+u8 Flag_Stop = 1, Flag_Show = 0;									// ç”µæœºåœæ­¢æ ‡å¿—ä½å’Œæ˜¾ç¤ºæ ‡å¿—ä½  é»˜è®¤åœæ­¢ æ˜¾ç¤ºæ‰“å¼€
+int Motor_Left, Motor_Right;										// ç”µæœºPWMå˜é‡ åº”æ˜¯Motorçš„ å‘Motoè‡´æ•¬
+int Temperature;													// æ¸©åº¦å˜é‡
+int Voltage;														// ç”µæ± ç”µå‹é‡‡æ ·ç›¸å…³çš„å˜é‡
+float Angle_Balance, Gyro_Balance, Gyro_Turn;						// å¹³è¡¡å€¾è§’ å¹³è¡¡é™€èºä»ª è½¬å‘é™€èºä»ª
+u32 Distance;														// è¶…å£°æ³¢æµ‹è·
+u8 delay_50, delay_flag, PID_Send;									// å»¶æ—¶å’Œè°ƒå‚ç›¸å…³å˜é‡
+u8 Flag_follow = 0, Flag_avoid = 0;									// è¶…å£°æ³¢è·Ÿéšã€è¶…å£°æ³¢å£éšœæ ‡å¿—ä½
+float Acceleration_Z;												// Zè½´åŠ é€Ÿåº¦è®¡
+// float Balance_Kp=540,Balance_Kd=1.5,Velocity_Kp=220,Velocity_Ki=1.1,Turn_Kp=42,Turn_Kd=-1;//PIDå‚æ•°ï¼ˆæ”¾å¤§100å€ï¼‰
+// float Balance_Kp=780*0.6,Balance_Kd=2.3*0.6,Velocity_Kp=1200,Velocity_Ki=6,Turn_Kp=0,Turn_Kd=0;//PIDå‚æ•°ï¼ˆæ”¾å¤§100å€ï¼‰
+float Balance_Kp = 600, Balance_Kd = 1.44, Velocity_Kp = 200, Velocity_Ki = 1, Turn_Kp = 0, Turn_Kd = 1; // PIDå‚æ•°ï¼ˆæ”¾å¤§100å€ï¼‰
 u8 tmp_buf[33], mode = 0;
+u8 temp_val;
+void do_action(u8 action, u8 val)
+{
+	char str[6];
+	int num = val;
+	switch (action)
+	{
+	case KEY_LED:
+		LED = !LED;
+		break;
+	case KEY_UP:
+		USART3_Send(MUSIC_NEXT);
+		break;
+	case KEY_VOLUME:
+		// if (temp_val < val)
+		// {
+		// 	USART3_Send(MUSIC_VOLUME_ADD);
+		// }
+		// else if (temp_val > val)
+		// {
+		// 	USART3_Send(MUSIC_VOLUME_SUB);
+		// }
+		// temp_val = val;
+		break;
+	}
+}
+
 int main(void)
-{ 
-    MY_NVIC_PriorityGroupConfig(2);	//ÉèÖÃÖĞ¶Ï·Ö×é
-	delay_init();	    	            //ÑÓÊ±º¯Êı³õÊ¼»¯	
-	JTAG_Set(JTAG_SWD_DISABLE);     //¹Ø±ÕJTAG½Ó¿Ú
-	JTAG_Set(SWD_ENABLE);           //´ò¿ªSWD½Ó¿Ú ¿ÉÒÔÀûÓÃÖ÷°åµÄSWD½Ó¿Úµ÷ÊÔ
-	LED_Init();                     //³õÊ¼»¯Óë LED Á¬½ÓµÄÓ²¼ş½Ó¿Ú
-	KEY_Init();                     //°´¼ü³õÊ¼»¯
-	MiniBalance_PWM_Init(7199,0);   //³õÊ¼»¯PWM 10KHZÓëµç»úÓ²¼ş½Ó¿Ú£¬ÓÃÓÚÇı¶¯µç»ú
-	uart_init(115200);	            //´®¿Ú1³õÊ¼»¯
-	uart3_init(9600);             	//´®¿Ú3³õÊ¼»¯£¬ÓÃÓÚÀ¶ÑÀÄ£¿é
-	Encoder_Init_TIM2();            //±àÂëÆ÷½Ó¿Ú
-	Encoder_Init_TIM4();            //³õÊ¼»¯±àÂëÆ÷4
-	Adc_Init();                     //adc³õÊ¼»¯
-	IIC_Init();                     //IIC³õÊ¼»¯
-	//OLED_Init();                    //OLED³õÊ¼»¯	    
-	MPU6050_initialize();           //MPU6050³õÊ¼»¯	
-	DMP_Init();                     //³õÊ¼»¯DMP 
-	//TIM3_Cap_Init(0XFFFF,72-1);	    //³¬Éù²¨³õÊ¼»¯
-	MiniBalance_EXTI_Init();        //MPU6050 5ms¶¨Ê±ÖĞ¶Ï³õÊ¼»¯£¬½ÚÊ¡¶¨Ê±Æ÷×ÊÔ´£¬¼õÉÙcpu¸ºµ£
-	//	NRF24L01_Init();    			//³õÊ¼»¯NRF24L01
-	//
-	//	while(NRF24L01_Check())
-	//	{
-	//		// OLED_ShowString(0,0,"NRF24L01 Error",8);
-	//		delay_ms(200);
-	//	 	// OLED_ShowString(0,0,"              ",8);
-	// 		delay_ms(200);
-	//	}
-	//	// OLED_ShowString(0,0,"NRF24L01 OK",8);
-	//	delay_ms(1000);
-	// OLED_ShowString(1,1,"           ",8);
-	
-	// ÒôÀÖÄ£¿é³õÊ¼»¯
-//	delay_ms(1000);
-//	USART3_Send(MUSIC_PLAY);
-//	delay_ms(100);
-//	USART3_Send(MUSIC_PLAY_MODE_LOOP_ALL);
-//	delay_ms(100);
-//	USART3_Send("AF:15"); //³õÊ¼»¯ÒôÁ¿25 (0-30)
-	
+{
+	MY_NVIC_PriorityGroupConfig(2); // è®¾ç½®ä¸­æ–­åˆ†ç»„
+	delay_init();					// å»¶æ—¶å‡½æ•°åˆå§‹åŒ–
+	//	JTAG_Set(JTAG_SWD_DISABLE);		// å…³é—­JTAGæ¥å£
+	//	JTAG_Set(SWD_ENABLE);			// æ‰“å¼€SWDæ¥å£ å¯ä»¥åˆ©ç”¨ä¸»æ¿çš„SWDæ¥å£è°ƒè¯•
+	LED_Init(); // åˆå§‹åŒ–ä¸ LED è¿æ¥çš„ç¡¬ä»¶æ¥å£
+	//	KEY_Init();						// æŒ‰é”®åˆå§‹åŒ–
+	//	MiniBalance_PWM_Init(7199, 0);	// åˆå§‹åŒ–PWM 10KHZä¸ç”µæœºç¡¬ä»¶æ¥å£ï¼Œç”¨äºé©±åŠ¨ç”µæœº
+	uart_init(115200); // ä¸²å£1åˆå§‹åŒ–
+	uart3_init(9600);  // ä¸²å£3åˆå§‹åŒ–ï¼Œç”¨äºè“ç‰™æ¨¡å—
+	//	Encoder_Init_TIM2();			// ç¼–ç å™¨æ¥å£
+	//	Encoder_Init_TIM4();			// åˆå§‹åŒ–ç¼–ç å™¨4
+	//	Adc_Init();						// adcåˆå§‹åŒ–
+	IIC_Init();	 // IICåˆå§‹åŒ–
+	OLED_Init(); // OLEDåˆå§‹åŒ–
+	//	MPU6050_initialize();			// MPU6050åˆå§‹åŒ–
+	//	DMP_Init();						// åˆå§‹åŒ–DMP
+	// TIM3_Cap_Init(0XFFFF,72-1);	    //è¶…å£°æ³¢åˆå§‹åŒ–
+
+	NRF24L01_Init(); // åˆå§‹åŒ–NRF24L01
+
+	while (NRF24L01_Check())
+	{
+		OLED_ShowString(0, 0, "NRF24L01 Error", 8, 1);
+		delay_ms(200);
+		OLED_ShowString(0, 0, "             ", 8, 1);
+		delay_ms(200);
+	}
+	OLED_ShowString(0, 0, "           ", 8, 1);
+
+	// éŸ³ä¹æ¨¡å—åˆå§‹åŒ–
+	delay_ms(1000);
+	USART3_Send(MUSIC_PLAY);
+	delay_ms(100);
+	// MiniBalance_EXTI_Init(); // MPU6050 5mså®šæ—¶ä¸­æ–­åˆå§‹åŒ–ï¼ŒèŠ‚çœå®šæ—¶å™¨èµ„æºï¼Œå‡å°‘cpuè´Ÿæ‹…
 	while (1)
 	{
-		//USART3_Send(MUSIC_NEXT);
-		delay_ms(100);
-		LED=!LED;
-		//		if(mode==0) //RXÄ£Ê½
-		//	 	{
-		//			// OLED_ShowString(1,1,"NRF24L01 RX_Mode");
-		//			// OLED_ShowString(2,1,"Received DATA:");
-		//			NRF24L01_RX_Mode();
-		//			while(1)
-		//			{
-		//				if(NRF24L01_RxPacket(tmp_buf)==0)//Ò»µ©½ÓÊÕµ½ĞÅÏ¢,ÔòÏÔÊ¾³öÀ´.
-		//				{
-		//					int rxDat = tmp_buf[0];
-		//					// OLED_ShowChar(3,1,rxDat);
-		//
-		//					if(rxDat==0)  //É²³µ
-		//					{
-		//						Flag_front=0,
-		//						Flag_back=0,
-		//						Flag_Left=0,
-		//						Flag_Right=0;
-		//					}
-		//					else if(rxDat==1) //Ç°
-		//					{
-		//						Flag_front=1,
-		//						Flag_back=0;
-		//						//Flag_Left=0,
-		//						//Flag_Right=0;
-		//					}
-		//					else if(rxDat==2) //ºó
-		//					{
-		//						Flag_front=0,
-		//						Flag_back=1;
-		//						//Flag_Left=0,
-		//						//Flag_Right=0;
-		//					}
-		//					else if(rxDat==3)	 //ÓÒ
-		//					{
-		//						//Flag_front=0,
-		//						//Flag_back=0,
-		//						Flag_Left=0,
-		//						Flag_Right=1;
-		//					}
-		//					else if(rxDat==4)	  //×ó
-		//					{
-		//						//Flag_front=0,
-		//						//Flag_back=0,
-		//						Flag_Left=1,
-		//						Flag_Right=0;
-		//					}
-		//					else if(rxDat==0x46||rxDat==0x47||rxDat==0x5B)	{ // led¿ØÖÆ
-		//						LED = !LED;
-		//					}
-		//					else  //É²³µ
-		//					{
-		//						Flag_front=0,
-		//						Flag_back=0,
-		//						Flag_Left=0,
-		//						Flag_Right=0;
-		//						LED = 1;
-		//					}
-		//				}
-		//			}
-		//		}
+		NRF24L01_RX_Mode();
+		OLED_ShowString(0, 0, "NRF24L01 RX_Mode", 8, 1);
 
-		//		if(Flag_Show==0)          		//Ê¹ÓÃMiniBalance APPºÍOLEDÏÔÊ¾ÆÁ
-		//		{
-		//			 APP_Show();								//·¢ËÍÊı¾İ¸øAPP
-		//			 oled_show();          			//ÏÔÊ¾ÆÁ´ò¿ª
-		//		}
-		//		else                      		//Ê¹ÓÃMiniBalanceÉÏÎ»»ú ÉÏÎ»»úÊ¹ÓÃµÄÊ±ºòĞèÒªÑÏ¸ñµÄÊ±Ğò£¬¹Ê´ËÊ±¹Ø±Õapp¼à¿Ø²¿·ÖºÍOLEDÏÔÊ¾ÆÁ
-		//		{
-		//			 DataScope();          			//¿ªÆôMiniBalanceÉÏÎ»»ú
-		//		}
-		//		delay_flag=1;
-		//		delay_50=0;
-		//		while(delay_flag);	     			//Ê¾²¨Æ÷ĞèÒª50ms	¸ß¾«¶ÈÑÓÊ±£¬delayº¯Êı²»Âú×ãÒªÇó£¬¹ÊÊ¹ÓÃMPU6050ÖĞ¶ÏÌá¹©50msÑÓÊ±
+		while (1)
+		{
+			OLED_ShowString(0, 8, "Receive DATA:", 8, 1);
+			if (NRF24L01_RxPacket(tmp_buf) == 0) // ä¸€æ—¦æ¥æ”¶åˆ°ä¿¡æ¯,åˆ™æ˜¾ç¤ºå‡ºæ¥.
+			{
+				OLED_ShowChar(0, 16, tmp_buf[0] + 0X30, 8, 1);
+				do_action(tmp_buf[0], tmp_buf[1]);
+			}
+			else
+			{
+				delay_us(100);
+			}
+		}
 	}
 }

@@ -1,87 +1,67 @@
-/***********************************************
-¹«Ë¾£ºÂÖÈ¤¿Æ¼¼£¨¶«İ¸£©ÓĞÏŞ¹«Ë¾
-Æ·ÅÆ£ºWHEELTEC
-¹ÙÍø£ºwheeltec.net
-ÌÔ±¦µêÆÌ£ºshop114407458.taobao.com 
-ËÙÂôÍ¨: https://minibalance.aliexpress.com/store/4455017
-°æ±¾£º
-ĞŞ¸ÄÊ±¼ä£º2021-04-29
-
- 
-Brand: WHEELTEC
-Website: wheeltec.net
-Taobao shop: shop114407458.taobao.com 
-Aliexpress: https://minibalance.aliexpress.com/store/4455017
-Version:
-Update£º2021-04-29
-
-All rights reserved
-***********************************************/
 #ifndef __SYS_H
-#define __SYS_H	  
-#include <stm32f10x.h>   
-//0,²»Ö§³Öucos
-//1,Ö§³Öucos
-#define SYSTEM_SUPPORT_UCOS		0		//¶¨ÒåÏµÍ³ÎÄ¼ş¼ĞÊÇ·ñÖ§³ÖUCOS
-																	    
-	 
-//Î»´ø²Ù×÷,ÊµÏÖ51ÀàËÆµÄGPIO¿ØÖÆ¹¦ÄÜ
-//¾ßÌåÊµÏÖË¼Ïë,²Î¿¼<<CM3È¨ÍşÖ¸ÄÏ>>µÚÎåÕÂ(87Ò³~92Ò³).
-//IO¿Ú²Ù×÷ºê¶¨Òå
-#define BITBAND(addr, bitnum) ((addr & 0xF0000000)+0x2000000+((addr &0xFFFFF)<<5)+(bitnum<<2)) 
-#define MEM_ADDR(addr)  *((volatile unsigned long  *)(addr)) 
-#define BIT_ADDR(addr, bitnum)   MEM_ADDR(BITBAND(addr, bitnum)) 
-//IO¿ÚµØÖ·Ó³Éä
-#define GPIOA_ODR_Addr    (GPIOA_BASE+12) //0x4001080C 
-#define GPIOB_ODR_Addr    (GPIOB_BASE+12) //0x40010C0C 
-#define GPIOC_ODR_Addr    (GPIOC_BASE+12) //0x4001100C 
-#define GPIOD_ODR_Addr    (GPIOD_BASE+12) //0x4001140C 
-#define GPIOE_ODR_Addr    (GPIOE_BASE+12) //0x4001180C 
-#define GPIOF_ODR_Addr    (GPIOF_BASE+12) //0x40011A0C    
-#define GPIOG_ODR_Addr    (GPIOG_BASE+12) //0x40011E0C    
+#define __SYS_H
+#include <stm32f10x.h>
+// 0,ä¸æ”¯æŒucos
+// 1,æ”¯æŒucos
+#define SYSTEM_SUPPORT_UCOS 0 // å®šä¹‰ç³»ç»Ÿæ–‡ä»¶å¤¹æ˜¯å¦æ”¯æŒUCOS
 
-#define GPIOA_IDR_Addr    (GPIOA_BASE+8) //0x40010808 
-#define GPIOB_IDR_Addr    (GPIOB_BASE+8) //0x40010C08 
-#define GPIOC_IDR_Addr    (GPIOC_BASE+8) //0x40011008 
-#define GPIOD_IDR_Addr    (GPIOD_BASE+8) //0x40011408 
-#define GPIOE_IDR_Addr    (GPIOE_BASE+8) //0x40011808 
-#define GPIOF_IDR_Addr    (GPIOF_BASE+8) //0x40011A08 
-#define GPIOG_IDR_Addr    (GPIOG_BASE+8) //0x40011E08 
- 
-//IO¿Ú²Ù×÷,Ö»¶Ôµ¥Ò»µÄIO¿Ú!
-//È·±£nµÄÖµĞ¡ÓÚ16!
-#define PAout(n)   BIT_ADDR(GPIOA_ODR_Addr,n)  //Êä³ö 
-#define PAin(n)    BIT_ADDR(GPIOA_IDR_Addr,n)  //ÊäÈë 
+// ä½å¸¦æ“ä½œ,å®ç°51ç±»ä¼¼çš„GPIOæ§åˆ¶åŠŸèƒ½
+// å…·ä½“å®ç°æ€æƒ³,å‚è€ƒ<<CM3æƒå¨æŒ‡å—>>ç¬¬äº”ç« (87é¡µ~92é¡µ).
+// IOå£æ“ä½œå®å®šä¹‰
+#define BITBAND(addr, bitnum) ((addr & 0xF0000000) + 0x2000000 + ((addr & 0xFFFFF) << 5) + (bitnum << 2))
+#define MEM_ADDR(addr) *((volatile unsigned long *)(addr))
+#define BIT_ADDR(addr, bitnum) MEM_ADDR(BITBAND(addr, bitnum))
+// IOå£åœ°å€æ˜ å°„
+#define GPIOA_ODR_Addr (GPIOA_BASE + 12) // 0x4001080C
+#define GPIOB_ODR_Addr (GPIOB_BASE + 12) // 0x40010C0C
+#define GPIOC_ODR_Addr (GPIOC_BASE + 12) // 0x4001100C
+#define GPIOD_ODR_Addr (GPIOD_BASE + 12) // 0x4001140C
+#define GPIOE_ODR_Addr (GPIOE_BASE + 12) // 0x4001180C
+#define GPIOF_ODR_Addr (GPIOF_BASE + 12) // 0x40011A0C
+#define GPIOG_ODR_Addr (GPIOG_BASE + 12) // 0x40011E0C
 
-#define PBout(n)   BIT_ADDR(GPIOB_ODR_Addr,n)  //Êä³ö 
-#define PBin(n)    BIT_ADDR(GPIOB_IDR_Addr,n)  //ÊäÈë 
+#define GPIOA_IDR_Addr (GPIOA_BASE + 8) // 0x40010808
+#define GPIOB_IDR_Addr (GPIOB_BASE + 8) // 0x40010C08
+#define GPIOC_IDR_Addr (GPIOC_BASE + 8) // 0x40011008
+#define GPIOD_IDR_Addr (GPIOD_BASE + 8) // 0x40011408
+#define GPIOE_IDR_Addr (GPIOE_BASE + 8) // 0x40011808
+#define GPIOF_IDR_Addr (GPIOF_BASE + 8) // 0x40011A08
+#define GPIOG_IDR_Addr (GPIOG_BASE + 8) // 0x40011E08
 
-#define PCout(n)   BIT_ADDR(GPIOC_ODR_Addr,n)  //Êä³ö 
-#define PCin(n)    BIT_ADDR(GPIOC_IDR_Addr,n)  //ÊäÈë 
+// IOå£æ“ä½œ,åªå¯¹å•ä¸€çš„IOå£!
+// ç¡®ä¿nçš„å€¼å°äº16!
+#define PAout(n) BIT_ADDR(GPIOA_ODR_Addr, n) // è¾“å‡º
+#define PAin(n) BIT_ADDR(GPIOA_IDR_Addr, n)  // è¾“å…¥
 
-#define PDout(n)   BIT_ADDR(GPIOD_ODR_Addr,n)  //Êä³ö 
-#define PDin(n)    BIT_ADDR(GPIOD_IDR_Addr,n)  //ÊäÈë 
+#define PBout(n) BIT_ADDR(GPIOB_ODR_Addr, n) // è¾“å‡º
+#define PBin(n) BIT_ADDR(GPIOB_IDR_Addr, n)  // è¾“å…¥
 
-#define PEout(n)   BIT_ADDR(GPIOE_ODR_Addr,n)  //Êä³ö 
-#define PEin(n)    BIT_ADDR(GPIOE_IDR_Addr,n)  //ÊäÈë
+#define PCout(n) BIT_ADDR(GPIOC_ODR_Addr, n) // è¾“å‡º
+#define PCin(n) BIT_ADDR(GPIOC_IDR_Addr, n)  // è¾“å…¥
 
-#define PFout(n)   BIT_ADDR(GPIOF_ODR_Addr,n)  //Êä³ö 
-#define PFin(n)    BIT_ADDR(GPIOF_IDR_Addr,n)  //ÊäÈë
+#define PDout(n) BIT_ADDR(GPIOD_ODR_Addr, n) // è¾“å‡º
+#define PDin(n) BIT_ADDR(GPIOD_IDR_Addr, n)  // è¾“å…¥
 
-#define PGout(n)   BIT_ADDR(GPIOG_ODR_Addr,n)  //Êä³ö 
-#define PGin(n)    BIT_ADDR(GPIOG_IDR_Addr,n)  //ÊäÈë
+#define PEout(n) BIT_ADDR(GPIOE_ODR_Addr, n) // è¾“å‡º
+#define PEin(n) BIT_ADDR(GPIOE_IDR_Addr, n)  // è¾“å…¥
+
+#define PFout(n) BIT_ADDR(GPIOF_ODR_Addr, n) // è¾“å‡º
+#define PFin(n) BIT_ADDR(GPIOF_IDR_Addr, n)  // è¾“å…¥
+
+#define PGout(n) BIT_ADDR(GPIOG_ODR_Addr, n) // è¾“å‡º
+#define PGin(n) BIT_ADDR(GPIOG_IDR_Addr, n)  // è¾“å…¥
 /////////////////////////////////////////////////////////////////
-//Ex_NVIC_Config×¨ÓÃ¶¨Òå
+// Ex_NVIC_Configä¸“ç”¨å®šä¹‰
 #define GPIO_A 0
 #define GPIO_B 1
 #define GPIO_C 2
 #define GPIO_D 3
 #define GPIO_E 4
 #define GPIO_F 5
-#define GPIO_G 6 
+#define GPIO_G 6
 
-#define FTIR   1  //ÏÂ½µÑØ´¥·¢
-#define RTIR   2  //ÉÏÉıÑØ´¥·¢
+#define FTIR 1 // ä¸‹é™æ²¿è§¦å‘
+#define RTIR 2 // ä¸Šå‡æ²¿è§¦å‘
 #include "delay.h"
 #include "led.h"
 #include "key.h"
@@ -94,75 +74,100 @@ All rights reserved
 #include "encoder.h"
 #include "ioi2c.h"
 #include "mpu6050.h"
-#include "show.h"					
+#include "show.h"
 #include "exti.h"
 #include "DataScope_DP.h"
 #include "control.h"
-#include "filter.h"	
+#include "filter.h"
 #include "nrf24l01.h"
 
-////JTAGÄ£Ê½ÉèÖÃ¶¨Òå
-#define JTAG_SWD_DISABLE   0X02
-#define SWD_ENABLE         0X01
-#define JTAG_SWD_ENABLE    0X00	
+#define NO_KEY 0
+#define KEY_UP 1
+#define KEY_DOWN 2
+#define KEY_LEFT 3
+#define KEY_RIGHT 4
+#define KEY_PRE 5
+#define KEY_NEXT 6
+#define KEY_PLAY_PAUSE 7
+#define KEY_LED 8
+#define KEY_BEEP 9
+#define KEY_CAR_MODE 10
+#define KEY_VOLUME 11
 
+#define LEFT 20
+#define LEFT_UP 21
+#define UP 22
+#define RIGHT_UP 23
+#define RIGHT 24
+#define RIGHT_DOWN 25
+#define DOWN 26
+#define LEFT_DOWN 27
 
-#define MUSIC_PLAY                        "A2" //²¥·Å
-#define MUSIC_PAUSE                       "A3" //ÔİÍ£
-#define MUSIC_STOP                        "A4" //Í£Ö¹
-#define MUSIC_PRE                         "A5" //ÉÏÒ»Çú
-#define MUSIC_NEXT                        "A6" //ÏÂÒ»Çú
-#define MUSIC_VOLUME_ADD                  "B0" //ÒôÁ¿+
-#define MUSIC_VOLUME_SUB                  "B1" //ÒôÁ¿-
-#define MUSIC_PLAY_MODE_LOOP_ALL          "B4:00" // È«ÅÌÑ­»·(00)£º°´Ë³Ğò²¥·ÅÈ«ÅÌÇúÄ¿,²¥·ÅÍêºóÑ­»·²¥·Å
-#define MUSIC_PLAY_MODE_LOOP_SINGLE       "B4:01" // µ¥ÇúÑ­»·(01)£ºÒ»Ö±Ñ­»·²¥·Åµ±Ç°ÇúÄ¿
-#define MUSIC_PLAY_MODE_RANDOM            "B4:03" // È«ÅÌËæ»ú(03)£ºËæ»ú²¥·ÅÅÌ·ûÄÚÇúÄ¿
+#define KEY_1 1 // é”®ç›˜ADæ–¹å‘
+#define KEY_2 2 // é”®ç›˜å³ä¾§ä¸Šä¸‹å·¦å³ç­‰æŒ‰é”®ï¼ŒåŒ…æ‹¬æ’­æ”¾æš‚åœ
+#define KEY_3 3 // æ—‹é’®éŸ³é‡
 
-extern u8 Way_Angle;                                       				 //»ñÈ¡½Ç¶ÈµÄËã·¨£¬1£ºËÄÔªÊı  2£º¿¨¶ûÂü  3£º»¥²¹ÂË²¨
-extern int Motor_Left,Motor_Right;                                 //µç»úPWM±äÁ¿ Ó¦ÊÇmotorµÄ ÏòmotoÖÂ¾´	
-extern u8 Flag_front,Flag_back,Flag_Left,Flag_Right,Flag_velocity; //À¶ÑÀÒ£¿ØÏà¹ØµÄ±äÁ¿
-extern u8 Flag_Stop,Flag_Show;                               			 //Í£Ö¹±êÖ¾Î»ºÍ ÏÔÊ¾±êÖ¾Î» Ä¬ÈÏÍ£Ö¹ ÏÔÊ¾´ò¿ª
-extern int Voltage;               																 //µç³ØµçÑ¹²ÉÑùÏà¹ØµÄ±äÁ¿
-extern float Angle_Balance,Gyro_Balance,Gyro_Turn;     						 //Æ½ºâÇã½Ç Æ½ºâÍÓÂİÒÇ ×ªÏòÍÓÂİÒÇ
+#define MUSIC_PLAY "A2"                     // æ’­æ”¾
+#define MUSIC_PAUSE "A3"                    // æš‚åœ
+#define MUSIC_STOP "A4"                     // Í£Ö¹åœæ­¢
+#define MUSIC_PRE "A5"                      // ä¸Šä¸€æ›²
+#define MUSIC_NEXT "A6"                     // ä¸‹ä¸€æ›²
+#define MUSIC_VOLUME_ADD "B0"               // éŸ³é‡+
+#define MUSIC_VOLUME_SUB "B1"               // éŸ³é‡-
+#define MUSIC_PLAY_MODE_LOOP_ALL "B4:00"    // å¾ªç¯æ’­æ”¾
+#define MUSIC_PLAY_MODE_LOOP_SINGLE "B4:01" // å•æ›²æ’­æ”¾
+#define MUSIC_PLAY_MODE_RANDOM "B4:03"      // éšæœºæ’­æ”¾
+
+////JTAGæ¨¡å¼è®¾ç½®å®šä¹‰
+#define JTAG_SWD_DISABLE 0X02
+#define SWD_ENABLE 0X01
+#define JTAG_SWD_ENABLE 0X00
+
+#define MUSIC_PLAY "A2"                     // æ’­æ”¾
+#define MUSIC_PAUSE "A3"                    // æš‚åœ
+#define MUSIC_STOP "A4"                     // åœæ­¢
+#define MUSIC_PRE "A5"                      // ä¸Šä¸€æ›²
+#define MUSIC_NEXT "A6"                     // ä¸‹ä¸€æ›²
+#define MUSIC_VOLUME_ADD "B0"               // éŸ³é‡+
+#define MUSIC_VOLUME_SUB "B1"               // éŸ³é‡-
+#define MUSIC_PLAY_MODE_LOOP_ALL "B4:00"    // å…¨ç›˜å¾ªç¯(00)ï¼šæŒ‰é¡ºåºæ’­æ”¾å…¨ç›˜æ›²ç›®,æ’­æ”¾å®Œåå¾ªç¯æ’­æ”¾
+#define MUSIC_PLAY_MODE_LOOP_SINGLE "B4:01" // å•æ›²å¾ªç¯(01)ï¼šä¸€ç›´å¾ªç¯æ’­æ”¾å½“å‰æ›²ç›®
+#define MUSIC_PLAY_MODE_RANDOM "B4:03"      // å…¨ç›˜éšæœº(03)ï¼šéšæœºæ’­æ”¾ç›˜ç¬¦å†…æ›²ç›®
+
+extern u8 Way_Angle;                                                   // è·å–è§’åº¦çš„ç®—æ³•ï¼Œ1ï¼šå››å…ƒæ•°  2ï¼šå¡å°”æ›¼  3ï¼šäº’è¡¥æ»¤æ³¢
+extern int Motor_Left, Motor_Right;                                    // ç”µæœºPWMå˜é‡ åº”æ˜¯motorçš„ å‘motoè‡´æ•¬
+extern u8 Flag_front, Flag_back, Flag_Left, Flag_Right, Flag_velocity; // è“ç‰™é¥æ§ç›¸å…³çš„å˜é‡
+extern u8 Flag_Stop, Flag_Show;                                        // åœæ­¢æ ‡å¿—ä½å’Œ æ˜¾ç¤ºæ ‡å¿—ä½ é»˜è®¤åœæ­¢ æ˜¾ç¤ºæ‰“å¼€
+extern int Voltage;                                                    // ç”µæ± ç”µå‹é‡‡æ ·ç›¸å…³çš„å˜é‡
+extern float Angle_Balance, Gyro_Balance, Gyro_Turn;                   // å¹³è¡¡å€¾è§’ å¹³è¡¡é™€èºä»ª è½¬å‘é™€èºä»ª
 extern int Temperature;
-extern u32 Distance;                                          		 //³¬Éù²¨²â¾à
-extern u8 Flag_follow,Flag_avoid,delay_50,delay_flag,PID_Send;
-extern float Acceleration_Z;                       //ZÖá¼ÓËÙ¶È¼Æ  
-extern float Balance_Kp,Balance_Kd,Velocity_Kp,Velocity_Ki,Turn_Kp,Turn_Kd;
-/////////////////////////////////////////////////////////////////  
-void Stm32_Clock_Init(u8 PLL);  //Ê±ÖÓ³õÊ¼»¯  
-void Sys_Soft_Reset(void);      //ÏµÍ³Èí¸´Î»
-void Sys_Standby(void);         //´ı»úÄ£Ê½ 	
-void MY_NVIC_SetVectorTable(u32 NVIC_VectTab, u32 Offset);//ÉèÖÃÆ«ÒÆµØÖ·
-void MY_NVIC_PriorityGroupConfig(u8 NVIC_Group);//ÉèÖÃNVIC·Ö×é
-void MY_NVIC_Init(u8 NVIC_PreemptionPriority,u8 NVIC_SubPriority,u8 NVIC_Channel,u8 NVIC_Group);//ÉèÖÃÖĞ¶Ï
-void Ex_NVIC_Config(u8 GPIOx,u8 BITx,u8 TRIM);//Íâ²¿ÖĞ¶ÏÅäÖÃº¯Êı(Ö»¶ÔGPIOA~G)
+extern u32 Distance; // è¶…å£°æ³¢æµ‹è·
+extern u8 Flag_follow, Flag_avoid, delay_50, delay_flag, PID_Send;
+extern float Acceleration_Z; // Zè½´åŠ é€Ÿåº¦è®¡
+extern float Balance_Kp, Balance_Kd, Velocity_Kp, Velocity_Ki, Turn_Kp, Turn_Kd;
+/////////////////////////////////////////////////////////////////
+void Stm32_Clock_Init(u8 PLL);                                                                      // æ—¶é’Ÿåˆå§‹åŒ–
+void Sys_Soft_Reset(void);                                                                          // ç³»ç»Ÿè½¯å¤ä½
+void Sys_Standby(void);                                                                             // å¾…æœºæ¨¡å¼
+void MY_NVIC_SetVectorTable(u32 NVIC_VectTab, u32 Offset);                                          // è®¾ç½®åç§»åœ°å€
+void MY_NVIC_PriorityGroupConfig(u8 NVIC_Group);                                                    // è®¾ç½®NVICåˆ†ç»„
+void MY_NVIC_Init(u8 NVIC_PreemptionPriority, u8 NVIC_SubPriority, u8 NVIC_Channel, u8 NVIC_Group); // è®¾ç½®ä¸­æ–­
+void Ex_NVIC_Config(u8 GPIOx, u8 BITx, u8 TRIM);                                                    // å¤–éƒ¨ä¸­æ–­é…ç½®å‡½æ•°(åªå¯¹GPIOA~G)
 void JTAG_Set(u8 mode);
 //////////////////////////////////////////////////////////////////////////////
-//ÒÔÏÂÎª»ã±àº¯Êı
-void WFI_SET(void);		  //Ö´ĞĞWFIÖ¸Áî
-void INTX_DISABLE(void);//¹Ø±ÕËùÓĞÖĞ¶Ï
-void INTX_ENABLE(void);	//¿ªÆôËùÓĞÖĞ¶Ï
-void MSR_MSP(u32 addr);	//ÉèÖÃ¶ÑÕ»µØÖ·
+// ä»¥ä¸‹ä¸ºæ±‡ç¼–å‡½æ•°
+void WFI_SET(void);      // æ‰§è¡ŒWFIæŒ‡ä»¤
+void INTX_DISABLE(void); // å…³é—­æ‰€æœ‰ä¸­æ–­
+void INTX_ENABLE(void);  // å¼€å¯æ‰€æœ‰ä¸­æ–­
+void MSR_MSP(u32 addr);  // è®¾ç½®å †æ ˆåœ°å€
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
 #include "dmpKey.h"
 #include "dmpmap.h"
-#include <string.h> 
+#include <string.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #endif
-
-
-
-
-
-
-
-
-
-
-

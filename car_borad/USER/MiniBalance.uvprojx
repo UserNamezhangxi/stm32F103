@@ -564,6 +564,11 @@
           <GroupName>SYSTEM</GroupName>
           <Files>
             <File>
+              <FileName>IOI2C.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MiniBalance_HARDWARE\IIC\IOI2C.c</FilePath>
+            </File>
+            <File>
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SYSTEM\delay\delay.c</FilePath>
@@ -617,11 +622,6 @@
               <FileName>encoder.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\MiniBalance_HARDWARE\ENCODER\encoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>IOI2C.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\MiniBalance_HARDWARE\IIC\IOI2C.c</FilePath>
             </File>
             <File>
               <FileName>usart3.c</FileName>

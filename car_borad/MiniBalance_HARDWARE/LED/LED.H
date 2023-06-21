@@ -22,6 +22,11 @@ All rights reserved
 #include "sys.h"
 //LED 端口定义
 #define LED PCout(13)  
+#define BEEP PAout(2) 
+
 void LED_Init(void);  //初始化
 void Led_Flash(u16 time);
+void BEEP_ON();
+void BEEP_OFF();
+
 #endif

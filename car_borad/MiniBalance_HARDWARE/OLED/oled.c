@@ -21,7 +21,38 @@ All rights reserved
 #include "stdlib.h"
 #include "oledfont.h"  	 
 #include "delay.h"
-u8 OLED_GRAM[128][8];	 
+
+u8 OLED_GRAM[144][8];
+
+
+//反显函数
+void OLED_ColorTurn(u8 i)
+{
+	if(i==0)
+		{
+			OLED_WR_Byte(0xA6,OLED_CMD);//正常显示
+		}
+	if(i==1)
+		{
+			OLED_WR_Byte(0xA7,OLED_CMD);//反色显示
+		}
+}
+
+//屏幕旋转180度
+void OLED_DisplayTurn(u8 i)
+{
+	if(i==0)
+		{
+			OLED_WR_Byte(0xC8,OLED_CMD);//正常显示
+			OLED_WR_Byte(0xA1,OLED_CMD);
+		}
+	if(i==1)
+		{
+			OLED_WR_Byte(0xC0,OLED_CMD);//反转显示
+			OLED_WR_Byte(0xA0,OLED_CMD);
+		}
+}
+
 /**************************************************************************
 Function: Refresh the OLED screen
 Input   : none
@@ -32,14 +63,24 @@ Output  : none
 **************************************************************************/
 void OLED_Refresh_Gram(void)
 {
-	u8 i,n;		    
-	for(i=0;i<8;i++)  
-	{  
-		OLED_WR_Byte (0xb0+i,OLED_CMD);    //设置页地址（0~7）
-		OLED_WR_Byte (0x00,OLED_CMD);      //设置显示位置—列低地址
-		OLED_WR_Byte (0x10,OLED_CMD);      //设置显示位置—列高地址   
-		for(n=0;n<128;n++) OLED_WR_Byte(OLED_GRAM[n][i],OLED_DATA); 
-	}   
+	u8 i,n;
+	for(i=0;i<8;i++)
+	{
+		OLED_WR_Byte(0xb0+i,OLED_CMD); //设置行起始地址
+		OLED_WR_Byte(0x00,OLED_CMD);   //设置低列起始地址
+		OLED_WR_Byte(0x10,OLED_CMD);   //设置高列起始地址
+		IIC_Start();
+		IIC_Send_Byte(0x78);
+		IIC_Wait_Ack();
+		IIC_Send_Byte(0x40);
+		IIC_Wait_Ack();
+		for(n=0;n<128;n++)
+		{
+			IIC_Send_Byte(OLED_GRAM[n][i]);
+			IIC_Wait_Ack();
+		}
+		IIC_Stop();
+  }  
 }
 
 /**************************************************************************
@@ -52,22 +93,15 @@ Output  : none
 **************************************************************************/  
 void OLED_WR_Byte(u8 dat,u8 cmd)
 {	
-	u8 i;			  
-	if(cmd)
-	  OLED_RS_Set();
-	else 
-	  OLED_RS_Clr();		  
-	for(i=0;i<8;i++)
-	{			  
-		OLED_SCLK_Clr();
-		if(dat&0x80)
-		   OLED_SDIN_Set();
-		else 
-		   OLED_SDIN_Clr();
-		OLED_SCLK_Set();
-		dat<<=1;   
-	}				 		  
-	OLED_RS_Set();   	  
+	IIC_Start();
+	IIC_Send_Byte(0x78);
+	IIC_Wait_Ack();
+	if(cmd){IIC_Send_Byte(0x40);}
+  else{IIC_Send_Byte(0x00);}
+	IIC_Wait_Ack();
+	IIC_Send_Byte(dat);
+	IIC_Wait_Ack();
+	IIC_Stop();  	  
 } 
 /**************************************************************************
 Function: Turn on the OLED display
@@ -97,6 +131,31 @@ void OLED_Display_Off(void)
 	OLED_WR_Byte(0X10,OLED_CMD);  //DCDC OFF
 	OLED_WR_Byte(0XAE,OLED_CMD);  //DISPLAY OFF
 }		   			 
+
+//更新显存到OLED	
+void OLED_Refresh(void)
+{
+	u8 i,n;
+	for(i=0;i<8;i++)
+	{
+		OLED_WR_Byte(0xb0+i,OLED_CMD); //设置行起始地址
+		OLED_WR_Byte(0x00,OLED_CMD);   //设置低列起始地址
+		OLED_WR_Byte(0x10,OLED_CMD);   //设置高列起始地址
+		IIC_Start();
+		IIC_Send_Byte(0x78);
+		IIC_Wait_Ack();
+		IIC_Send_Byte(0x40);
+		IIC_Wait_Ack();
+		for(n=0;n<128;n++)
+		{
+			IIC_Send_Byte(OLED_GRAM[n][i]);
+			IIC_Wait_Ack();
+		}
+		IIC_Stop();
+  }
+}
+
+
 /**************************************************************************
 Function: Screen clear function, clear the screen, the entire screen is black, and did not light up the same
 Input   : none
@@ -104,11 +163,18 @@ Output  : none
 函数功能：清屏函数,清完屏,整个屏幕是黑色的，和没点亮一样
 入口参数：无		  
 返回  值：无
-**************************************************************************/  	  void OLED_Clear(void)  
+**************************************************************************/  	  
+void OLED_Clear(void)  
 {  
-	u8 i,n;  
-	for(i=0;i<8;i++)for(n=0;n<128;n++)OLED_GRAM[n][i]=0X00;  
-	OLED_Refresh_Gram();//更新显示
+	u8 i,n;
+	for(i=0;i<8;i++)
+	{
+	   for(n=0;n<128;n++)
+			{
+			 OLED_GRAM[n][i]=0;//清除所有数据
+			}
+  }
+	OLED_Refresh();//更新显示
 }
 /**************************************************************************
 Function: Draw point
@@ -120,13 +186,17 @@ Output  : none
 **************************************************************************/ 			   				   
 void OLED_DrawPoint(u8 x,u8 y,u8 t)
 {
-	u8 pos,bx,temp=0;
-	if(x>127||y>63)return;//超出范围了.
-	pos=7-y/8;
-	bx=y%8;
-	temp=1<<(7-bx);
-	if(t)  OLED_GRAM[x][pos]|=temp;
-	else   OLED_GRAM[x][pos]&=~temp;	    
+	u8 i,m,n;
+	i=y/8;
+	m=y%8;
+	n=1<<m;
+	if(t){OLED_GRAM[x][i]|=n;}
+	else
+	{
+		OLED_GRAM[x][i]=~OLED_GRAM[x][i];
+		OLED_GRAM[x][i]|=n;
+		OLED_GRAM[x][i]=~OLED_GRAM[x][i];
+	}   
 }
 
 /**************************************************************************
@@ -137,29 +207,37 @@ Output  : none
 入口参数：x,y :起点坐标; len :数字的位数; size:字体大小; mode:0,反白显示,1,正常显示	   
 返回  值：无
 **************************************************************************/
-void OLED_ShowChar(u8 x,u8 y,u8 chr,u8 size,u8 mode)
+void OLED_ShowChar(u8 x,u8 y,u8 chr,u8 size1,u8 mode)
 {      			    
-	u8 temp,t,t1;
-	u8 y0=y;
-	chr=chr-' ';																//得到偏移后的值				   
-    for(t=0;t<size;t++)
-    {   
-			if(size==12)  temp=oled_asc2_1206[chr][t];  //调用1206字体
-			else          temp=oled_asc2_1608[chr][t];	//调用1608字体 	                          
-			for(t1=0;t1<8;t1++)
-			{
-				if(temp&0x80)  OLED_DrawPoint(x,y,mode);
-				else           OLED_DrawPoint(x,y,!mode);
-				temp<<=1;
-				y++;
-				if((y-y0)==size)
-				{
-					y=y0;
-					x++;
-					break;
-				}
-			}  	 
-    }          
+	u8 i,m,temp,size2,chr1;
+	u8 x0=x,y0=y;
+	if(size1==8)size2=6;
+	else size2=(size1/8+((size1%8)?1:0))*(size1/2);  //得到字体一个字符对应点阵集所占的字节数
+	chr1=chr-' ';  //计算偏移后的值
+	for(i=0;i<size2;i++)
+	{
+		if(size1==8)
+			  {temp=asc2_0806[chr1][i];} //调用0806字体
+		else if(size1==12)
+        {temp=asc2_1206[chr1][i];} //调用1206字体
+		else if(size1==16)
+        {temp=asc2_1608[chr1][i];} //调用1608字体
+		else if(size1==24)
+        {temp=asc2_2412[chr1][i];} //调用2412字体
+		else return;
+		for(m=0;m<8;m++)
+		{
+			if(temp&0x01)OLED_DrawPoint(x,y,mode);
+			else OLED_DrawPoint(x,y,!mode);
+			temp>>=1;
+			y++;
+		}
+		x++;
+		if((size1!=8)&&((x-x0)==size1/2))
+		{x=x0;y0=y0+8;}
+		y=y0;
+  }
+	OLED_Refresh();        
 }
 /**************************************************************************
 Function: Find m to the NTH power
@@ -183,24 +261,22 @@ Output  : none
 入口参数：x,y :起点坐标; len :数字的位数; size:字体大小; mode:模式, 0,填充模式, 1,叠加模式; num:数值(0~4294967295);	 
 返回  值：无
 **************************************************************************/		  
-void OLED_ShowNumber(u8 x,u8 y,u32 num,u8 len,u8 size)
+void OLED_ShowNumber(u8 x,u8 y,u32 num,u8 len,u8 size1,u8 mode)
 {         	
-	u8 t,temp;
-	u8 enshow=0;						   
+	u8 t,temp,m=0;
+	if(size1==8)m=2;
 	for(t=0;t<len;t++)
 	{
 		temp=(num/oled_pow(10,len-t-1))%10;
-		if(enshow==0&&t<(len-1))
-		{
 			if(temp==0)
 			{
-				OLED_ShowChar(x+(size/2)*t,y,' ',size,1);
-				continue;
-			}else enshow=1; 
-		 	 
-		}
-	 	OLED_ShowChar(x+(size/2)*t,y,temp+'0',size,1); 
-	}
+				OLED_ShowChar(x+(size1/2+m)*t,y,'0',size1,mode);
+      }
+			else 
+			{
+			  OLED_ShowChar(x+(size1/2+m)*t,y,temp+'0',size1,mode);
+			}
+  }
 } 
 /**************************************************************************
 Function: Display string
@@ -211,19 +287,129 @@ Output  : none
 返回  值：无
 **************************************************************************/
 //用16字体
-void OLED_ShowString(u8 x,u8 y,const u8 *p)
+void OLED_ShowString(u8 x,u8 y,u8 *chr,u8 size1,u8 mode)
 {
-#define MAX_CHAR_POSX 122
-#define MAX_CHAR_POSY 58          
-    while(*p!='\0')
-    {       
-      if(x>MAX_CHAR_POSX){x=0;y+=16;}
-      if(y>MAX_CHAR_POSY){y=x=0;OLED_Clear();}
-      OLED_ShowChar(x,y,*p,12,1);	 
-      x+=8;
-      p++;
-    }  
-}	   
+	while((*chr>=' ')&&(*chr<='~'))//判断是不是非法字符!
+	{
+		OLED_ShowChar(x,y,*chr,size1,mode);
+		if(size1==8)x+=6;
+		else x+=size1/2;
+		chr++;
+  }
+}  
+
+
+//显示汉字
+//x,y:起点坐标
+//num:汉字对应的序号
+//mode:0,反色显示;1,正常显示
+void OLED_ShowChinese(u8 x,u8 y,u8 num,u8 size1,u8 mode)
+{
+	u8 m,temp;
+	u8 x0=x,y0=y;
+	u16 i,size3=(size1/8+((size1%8)?1:0))*size1;  //得到字体一个字符对应点阵集所占的字节数
+	for(i=0;i<size3;i++)
+	{
+		if(size1==16)
+				{temp=Hzk1[num][i];}//调用16*16字体
+		else if(size1==24)
+				{temp=Hzk2[num][i];}//调用24*24字体
+		else if(size1==32)       
+				{temp=Hzk3[num][i];}//调用32*32字体
+		else if(size1==64)
+				{temp=Hzk4[num][i];}//调用64*64字体
+		else return;
+		for(m=0;m<8;m++)
+		{
+			if(temp&0x01)OLED_DrawPoint(x,y,mode);
+			else OLED_DrawPoint(x,y,!mode);
+			temp>>=1;
+			y++;
+		}
+		x++;
+		if((x-x0)==size1)
+		{x=x0;y0=y0+8;}
+		y=y0;
+	}
+}
+
+
+//num 显示汉字的个数
+//space 每一遍显示的间隔
+//mode:0,反色显示;1,正常显示
+void OLED_ScrollDisplay(u8 num,u8 space,u8 mode)
+{
+	u8 i,n,t=0,m=0,r;
+	while(1)
+	{
+		if(m==0)
+		{
+	    OLED_ShowChinese(128,24,t,16,mode); //写入一个汉字保存在OLED_GRAM[][]数组中
+			t++;
+		}
+		if(t==num)
+			{
+				for(r=0;r<16*space;r++)      //显示间隔
+				 {
+					for(i=1;i<144;i++)
+						{
+							for(n=0;n<8;n++)
+							{
+								OLED_GRAM[i-1][n]=OLED_GRAM[i][n];
+							}
+						}
+           OLED_Refresh();
+				 }
+        t=0;
+      }
+		m++;
+		if(m==16){m=0;}
+		for(i=1;i<144;i++)   //实现左移
+		{
+			for(n=0;n<8;n++)
+			{
+				OLED_GRAM[i-1][n]=OLED_GRAM[i][n];
+			}
+		}
+		OLED_Refresh();
+	}
+}
+
+
+//x,y：起点坐标
+//sizex,sizey,图片长宽
+//BMP[]：要写入的图片数组
+//mode:0,反色显示;1,正常显示
+void OLED_ShowPicture(u8 x,u8 y,u8 sizex,u8 sizey,u8 BMP[],u8 mode)
+{
+	u16 j=0;
+	u8 i,n,temp,m;
+	u8 x0=x,y0=y;
+	sizey=sizey/8+((sizey%8)?1:0);
+	for(n=0;n<sizey;n++)
+	{
+		 for(i=0;i<sizex;i++)
+		 {
+				temp=BMP[j];
+				j++;
+				for(m=0;m<8;m++)
+				{
+					if(temp&0x01)OLED_DrawPoint(x,y,mode);
+					else OLED_DrawPoint(x,y,!mode);
+					temp>>=1;
+					y++;
+				}
+				x++;
+				if((x-x0)==sizex)
+				{
+					x=x0;
+					y0=y0+8;
+				}
+				y=y0;
+     }
+	 }
+}
+
 /**************************************************************************
 Function: Initialize the OLED
 Input   : none
@@ -233,59 +419,38 @@ Output  : none
 返回  值：无
 **************************************************************************/	 				    
 void OLED_Init(void)
-{ 	
-//	GPIO_InitTypeDef GPIO_InitStructure;
-//  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE); 				 //使能PB端口时钟
-//  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5;//端口配置
-//  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;      				 //推挽输出
-//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;     					 //2M
-//  GPIO_Init(GPIOB, &GPIO_InitStructure);					               //根据设定参数初始化GPIO 
-//	
-//	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);          //开A口时钟。
-//  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_15;
-//  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;               //设为输出　
-//  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-//  GPIO_Init(GPIOA, &GPIO_InitStructure);
-//	
-//	PWR_BackupAccessCmd(ENABLE); //允许修改RTC 和后备寄存器
-//	RCC_LSEConfig(RCC_LSE_OFF);  //关闭外部低速外部时钟信号功能 后，PC13 PC14 PC15 才可以当普通IO用。
-//	BKP_TamperPinCmd(DISABLE);   //关闭入侵检测功能，也就是 PC13，也可以当普通IO 使用
-//	PWR_BackupAccessCmd(DISABLE);//禁止修改后备寄存器
-
-//	OLED_RST_Clr();
-//	delay_ms(100);
-//	OLED_RST_Set(); 
-					  
-	OLED_WR_Byte(0xAE,OLED_CMD); //关闭显示
-	OLED_WR_Byte(0xD5,OLED_CMD); //设置时钟分频因子,震荡频率
-	OLED_WR_Byte(80,OLED_CMD);   //[3:0],分频因子;[7:4],震荡频率
-	OLED_WR_Byte(0xA8,OLED_CMD); //设置驱动路数
-	OLED_WR_Byte(0X3F,OLED_CMD); //默认0X3F(1/64) 
-	OLED_WR_Byte(0xD3,OLED_CMD); //设置显示偏移
-	OLED_WR_Byte(0X00,OLED_CMD); //默认为0
-
-	OLED_WR_Byte(0x40,OLED_CMD); //设置显示开始行 [5:0],行数.
-													    
-	OLED_WR_Byte(0x8D,OLED_CMD); //电荷泵设置
-	OLED_WR_Byte(0x14,OLED_CMD); //bit2，开启/关闭
-	OLED_WR_Byte(0x20,OLED_CMD); //设置内存地址模式
-	OLED_WR_Byte(0x02,OLED_CMD); //[1:0],00，列地址模式;01，行地址模式;10,页地址模式;默认10;
-	OLED_WR_Byte(0xA1,OLED_CMD); //段重定义设置,bit0:0,0->0;1,0->127;
-	OLED_WR_Byte(0xC0,OLED_CMD); //设置COM扫描方向;bit3:0,普通模式;1,重定义模式 COM[N-1]->COM0;N:驱动路数
-	OLED_WR_Byte(0xDA,OLED_CMD); //设置COM硬件引脚配置
-	OLED_WR_Byte(0x12,OLED_CMD); //[5:4]配置
-		 
-	OLED_WR_Byte(0x81,OLED_CMD); //对比度设置
-	OLED_WR_Byte(0xEF,OLED_CMD); //1~255;默认0X7F (亮度设置,越大越亮)
-	OLED_WR_Byte(0xD9,OLED_CMD); //设置预充电周期
-	OLED_WR_Byte(0xf1,OLED_CMD); //[3:0],PHASE 1;[7:4],PHASE 2;
-	OLED_WR_Byte(0xDB,OLED_CMD); //设置VCOMH 电压倍率
-	OLED_WR_Byte(0x30,OLED_CMD); //[6:4] 000,0.65*vcc;001,0.77*vcc;011,0.83*vcc;
-
-	OLED_WR_Byte(0xA4,OLED_CMD); //全局显示开启;bit0:1,开启;0,关闭;(白屏/黑屏)
-	OLED_WR_Byte(0xA6,OLED_CMD); //设置显示方式;bit0:1,反相显示;0,正常显示	    						   
-	OLED_WR_Byte(0xAF,OLED_CMD); //开启显示	 
+{ 
+	delay_ms(200);
+	OLED_WR_Byte(0xAE,OLED_CMD);//--turn off oled panel
+	OLED_WR_Byte(0x00,OLED_CMD);//---set low column address
+	OLED_WR_Byte(0x10,OLED_CMD);//---set high column address
+	OLED_WR_Byte(0x40,OLED_CMD);//--set start line address  Set Mapping RAM Display Start Line (0x00~0x3F)
+	OLED_WR_Byte(0x81,OLED_CMD);//--set contrast control register
+	OLED_WR_Byte(0xCF,OLED_CMD);// Set SEG Output Current Brightness
+	OLED_WR_Byte(0xA1,OLED_CMD);//--Set SEG/Column Mapping     0xa0左右反置 0xa1正常
+	OLED_WR_Byte(0xC8,OLED_CMD);//Set COM/Row Scan Direction   0xc0上下反置 0xc8正常
+	OLED_WR_Byte(0xA6,OLED_CMD);//--set normal display
+	OLED_WR_Byte(0xA8,OLED_CMD);//--set multiplex ratio(1 to 64)
+	OLED_WR_Byte(0x3f,OLED_CMD);//--1/64 duty
+	OLED_WR_Byte(0xD3,OLED_CMD);//-set display offset	Shift Mapping RAM Counter (0x00~0x3F)
+	OLED_WR_Byte(0x00,OLED_CMD);//-not offset
+	OLED_WR_Byte(0xd5,OLED_CMD);//--set display clock divide ratio/oscillator frequency
+	OLED_WR_Byte(0x80,OLED_CMD);//--set divide ratio, Set Clock as 100 Frames/Sec
+	OLED_WR_Byte(0xD9,OLED_CMD);//--set pre-charge period
+	OLED_WR_Byte(0xF1,OLED_CMD);//Set Pre-Charge as 15 Clocks & Discharge as 1 Clock
+	OLED_WR_Byte(0xDA,OLED_CMD);//--set com pins hardware configuration
+	OLED_WR_Byte(0x12,OLED_CMD);
+	OLED_WR_Byte(0xDB,OLED_CMD);//--set vcomh
+	OLED_WR_Byte(0x30,OLED_CMD);//Set VCOM Deselect Level
+	OLED_WR_Byte(0x20,OLED_CMD);//-Set Page Addressing Mode (0x00/0x01/0x02)
+	OLED_WR_Byte(0x02,OLED_CMD);//
+	OLED_WR_Byte(0x8D,OLED_CMD);//--set Charge Pump enable/disable
+	OLED_WR_Byte(0x14,OLED_CMD);//--set(0x10) disable
 	OLED_Clear();
+	OLED_WR_Byte(0xAF,OLED_CMD);
+	
+	OLED_ColorTurn(0);	 // 0正常显示，1 反色显示
+	OLED_DisplayTurn(0); // 0正常显示 1 屏幕翻转显示
 }  
 
 
