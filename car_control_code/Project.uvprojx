@@ -365,7 +365,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>.\Start;.\Library;.\User;.\System;.\Hardware\IIC;.\Hardware\LED;.\Hardware\NRF24L01;.\Hardware\SPI;.\System\delay;.\System\sys;.\System\usart;.\Hardware\OLED;.\Hardware\KEY</IncludePath>
+              <IncludePath>.\Start;.\Library;.\User;.\System;.\Hardware\IIC;.\Hardware\LED;.\Hardware\NRF24L01;.\Hardware\SPI;.\System\delay;.\System\sys;.\System\usart;.\Hardware\OLED;.\Hardware\KEY;.\Hardware\ADC;.\Hardware\Encoder</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -747,6 +747,16 @@
               <FileName>key.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Hardware\KEY\key.c</FilePath>
+            </File>
+            <File>
+              <FileName>AD.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\ADC\AD.c</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\Encoder\Encoder.c</FilePath>
             </File>
           </Files>
         </Group>

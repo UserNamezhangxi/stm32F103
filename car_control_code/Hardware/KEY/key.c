@@ -1,6 +1,11 @@
-#include "stm32f10x.h"                  // Device header
+#include "stm32f10x.h" // Device header
 #include "delay.h"
 #include "key.h"
+#include "ad.h"
+#include "usart.h"
+#include "encoder.h"
+
+u8 tp = 20;
 
 void Key_Init(void)
 {
@@ -12,71 +17,139 @@ void Key_Init(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	//led buzz up
+	// led buzz up
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_15 | GPIO_Pin_5; // led | buzz | up
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 
-uint8_t Key_GetNum(void)
+u8 Key_GetNum(u8 *key, u8 *value)
 {
-	uint8_t KeyNum = 0;
+	u8 temp_key = NO_KEY;
 	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14) == 0)
 	{
-		delay_ms(20);
-		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14) == 0);
-		delay_ms(20);
-		KeyNum = KEY_LED;
+		delay_ms(10);
+		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14) == 0)
+			;
+		delay_ms(10);
+		*key = KEY_2;
+		*value = KEY_BEEP;
+		return DEFAULT_KEY;
 	}
 	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15) == 0)
 	{
-		delay_ms(20);
-		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15) == 0);
-		delay_ms(20);
-		KeyNum = KEY_BEEP;
+		delay_ms(10);
+		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15) == 0)
+			;
+		delay_ms(10);
+		*key = KEY_2;
+		*value = KEY_LED;
+		return DEFAULT_KEY;
 	}
+
 	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5) == 0)
 	{
-		delay_ms(20);
-		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5) == 0);
-		delay_ms(20);
-		KeyNum = KEY_UP;
+		delay_ms(10);
+		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5) == 0)
+			;
+		delay_ms(10);
+		*key = KEY_2;
+		*value = KEY_UP;
+		return DEFAULT_KEY;
 	}
-	if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0) == 0)
+	if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_15) == 0)
 	{
-		delay_ms(20);
-		while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0) == 0);
-		delay_ms(20);
-		KeyNum = KEY_PLAY_PAUSE;
+		delay_ms(10);
+		while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_15) == 0)
+			;
+		delay_ms(10);
+		*key = KEY_2;
+		*value = KEY_DOWN;
+		return DEFAULT_KEY;
+	}
+	if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_12) == 0)
+	{
+		delay_ms(10);
+		while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_12) == 0)
+			;
+		delay_ms(10);
+		*key = KEY_2;
+		*value = KEY_LEFT;
+		return DEFAULT_KEY;
 	}
 	if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8) == 0)
 	{
-		delay_ms(20);
-		while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8) == 0);
-		delay_ms(20);
-		KeyNum = KEY_RIGHT;
+		delay_ms(10);
+		while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8) == 0)
+			;
+		delay_ms(10);
+		*key = KEY_2;
+		*value = KEY_RIGHT;
+		return DEFAULT_KEY;
 	}
 
 	if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_11) == 0)
 	{
-		delay_ms(20);
-		while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_11) == 0);
-		delay_ms(20);
-		KeyNum = KEY_LEFT;
+		delay_ms(10);
+		while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_11) == 0)
+			;
+		delay_ms(10);
+		*key = KEY_2;
+		*value = KEY_CAR_MODE;
+		return DEFAULT_KEY;
 	}
-	if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_12) == 0)
+
+	if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0) == 0)
 	{
-		delay_ms(20);
-		while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_12) == 0);
-		delay_ms(20);
-		KeyNum = KEY_CAR_MODE;
+		delay_ms(10);
+		while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0) == 0)
+			;
+		delay_ms(10);
+		*key = KEY_2;
+		*value = KEY_PLAY_PAUSE;
+		return DEFAULT_KEY;
 	}
-	if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_15) == 0)
+
+	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_12) == 0)
 	{
-		delay_ms(20);
-		while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_15) == 0);
-		delay_ms(20);
-		KeyNum = KEY_DOWN;
+		delay_ms(10);
+		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_12) == 0)
+			;
+		delay_ms(10);
+		*key = KEY_2;
+		*value = KEY_NEXT;
+		return DEFAULT_KEY;
 	}
-	return KeyNum;
+
+	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13) == 0)
+	{
+		delay_ms(10);
+		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13) == 0)
+			;
+		delay_ms(10);
+		*key = KEY_2;
+		*value = KEY_PRE;
+		return DEFAULT_KEY;
+	}
+
+	temp_key = Get_AD_Key();
+	if (temp_key != NO_KEY)
+	{
+		*key = KEY_1;
+		*value = temp_key;
+		return DEFAULT_KEY;
+	}
+
+	temp_key = get_music_volume(tp);
+	if (temp_key != NO_KEY)
+	{
+		tp = temp_key;
+		*key = KEY_3;
+		*value = temp_key;
+		return DEFAULT_KEY;
+	}
+
+	*key = NO_KEY;
+	*value = NO_KEY;
+	return NO_KEY;
 }

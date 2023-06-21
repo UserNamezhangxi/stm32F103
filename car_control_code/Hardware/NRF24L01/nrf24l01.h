@@ -59,14 +59,14 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 24L01操作线
 // 遥控器板子上的
-//#define NRF24L01_CE PBout(11) // 24L01片选信号
-//#define NRF24L01_CSN PAout(4) // SPI片选信号
-//#define NRF24L01_IRQ PBin(10) // IRQ主机数据输入
+#define NRF24L01_CE PBout(11) // 24L01片选信号
+#define NRF24L01_CSN PAout(4) // SPI片选信号
+#define NRF24L01_IRQ PBin(10) // IRQ主机数据输入
 
 // 小车主板上的
- #define NRF24L01_CE PBout(3)  // 24L01片选信号
- #define NRF24L01_CSN PAout(4) // SPI片选信号
- #define NRF24L01_IRQ PBin(4)  // IRQ主机数据输入
+// #define NRF24L01_CE PBout(3)  // 24L01片选信号
+// #define NRF24L01_CSN PAout(4) // SPI片选信号
+// #define NRF24L01_IRQ PBin(4)  // IRQ主机数据输入
 // 24L01发送接收数据宽度定义
 #define TX_ADR_WIDTH 5    // 5字节的地址宽度
 #define RX_ADR_WIDTH 5    // 5字节的地址宽度

@@ -87,7 +87,7 @@ void NRF24L01_Init(void)
 
 	SPI_InitTypeDef SPI_InitStructure;
 
-	remapPB4IO();
+	remapPB4IO_yaokongqi();
 
 	SPI1_Init(); // 初始化SPI
 
