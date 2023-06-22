@@ -35,29 +35,94 @@ float Acceleration_Z;												// Z轴加速度计
 float Balance_Kp = 600, Balance_Kd = 1.44, Velocity_Kp = 200, Velocity_Ki = 1, Turn_Kp = 0, Turn_Kd = 1; // PID参数（放大100倍）
 u8 tmp_buf[33], mode = 0;
 u8 temp_val;
+u8 play_pause;
+
+// 执行遥控器发过来的命令
 void do_action(u8 action, u8 val)
 {
-	char str[6];
-	int num = val;
-	switch (action)
+	if (action == KEY_1)
 	{
-	case KEY_LED:
-		LED = !LED;
-		break;
-	case KEY_UP:
-		USART3_Send(MUSIC_NEXT);
-		break;
-	case KEY_VOLUME:
-		// if (temp_val < val)
-		// {
-		// 	USART3_Send(MUSIC_VOLUME_ADD);
-		// }
-		// else if (temp_val > val)
-		// {
-		// 	USART3_Send(MUSIC_VOLUME_SUB);
-		// }
-		// temp_val = val;
-		break;
+		switch (val)
+		{
+		case LEFT:
+
+			break;
+		case LEFT_UP:
+
+			break;
+		case UP:
+
+			break;
+		case RIGHT_UP:
+
+			break;
+		case RIGHT:
+
+			break;
+		case RIGHT_DOWN:
+
+			break;
+		case DOWN:
+
+			break;
+		case LEFT_DOWN:
+
+			break;
+		default:
+			break;
+		}
+	}
+	else if (action == KEY_2)
+	{
+		switch (val)
+		{
+		case KEY_LED:
+			LED = !LED;
+			break;
+		case KEY_BEEP:
+			BEEP = !BEEP;
+			break;
+		case KEY_NEXT:
+			USART3_Send(MUSIC_NEXT);
+			break;
+		case KEY_PRE:
+			USART3_Send(MUSIC_PRE);
+			break;
+		case KEY_UP:
+			break;
+		case KEY_LEFT:
+			break;
+		case KEY_RIGHT:
+			break;
+		case KEY_DOWN:
+			break;
+		case KEY_CAR_MODE:
+			break;
+		case KEY_PLAY_PAUSE:
+			if (play_pause == 1)
+			{
+				play_pause = 0;
+				USART3_Send(MUSIC_PAUSE);
+			}
+			else
+			{
+				play_pause = 1;
+				USART3_Send(MUSIC_PLAY);
+			}
+			break;
+		}
+	}
+	else if (action == KEY_3)
+	{
+		if (temp_val < val)
+		{
+			USART3_Send(MUSIC_VOLUME_ADD);
+		}
+		else if (temp_val > val)
+		{
+			USART3_Send(MUSIC_VOLUME_SUB);
+		}
+		temp_val = val;
 	}
 }
 
@@ -97,8 +162,7 @@ int main(void)
 	USART3_Send(MUSIC_PLAY);
 	delay_ms(100);
 	// MiniBalance_EXTI_Init(); // MPU6050 5ms定时中断初始化，节省定时器资源，减少cpu负担
-	while (1)
-	{
+
 		NRF24L01_RX_Mode();
 		OLED_ShowString(0, 0, "NRF24L01 RX_Mode", 8, 1);
 
@@ -107,13 +171,10 @@ int main(void)
 			OLED_ShowString(0, 8, "Receive DATA:", 8, 1);
 			if (NRF24L01_RxPacket(tmp_buf) == 0) // 一旦接收到信息,则显示出来.
 			{
-				OLED_ShowChar(0, 16, tmp_buf[0] + 0X30, 8, 1);
+				OLED_ShowNumber(0, 16, tmp_buf[0], 8, 2, 1);
+				OLED_ShowNumber(10, 16, tmp_buf[1], 8, 2, 1);
 				do_action(tmp_buf[0], tmp_buf[1]);
 			}
-			else
-			{
-				delay_us(100);
-			}
-		}
+
 	}
 }

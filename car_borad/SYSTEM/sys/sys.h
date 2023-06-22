@@ -92,7 +92,6 @@
 #define KEY_LED 8
 #define KEY_BEEP 9
 #define KEY_CAR_MODE 10
-#define KEY_VOLUME 11
 
 #define LEFT 20
 #define LEFT_UP 21
