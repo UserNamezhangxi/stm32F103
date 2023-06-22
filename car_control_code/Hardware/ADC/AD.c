@@ -62,9 +62,9 @@ uint16_t Get_AD_Key()
 {
 	int ver = Vertical();
 	int hor = Horizontal();
-	
-	printf("ver = %d  , hor = %d\r\n" ,ver,hor);
-	
+
+	printf("ver = %d  , hor = %d\r\n", ver, hor);
+
 	if (ver == UP)
 	{
 		if (hor == LEFT)
@@ -140,11 +140,11 @@ uint16_t Vertical()
 	}
 	sum = sum / 10;
 
-	if (4096 > sum && sum >= 2200) // ��2
+	if (4096 > sum && sum >= 3000) // ��2
 	{
 		return UP;
 	}
-	else if (1800 > sum && sum >= 0) // ��1
+	else if (1000 > sum && sum >= 0) // ��1
 	{
 		return DOWN;
 	}
@@ -163,11 +163,11 @@ uint16_t Horizontal()
 	}
 	sum = sum / 10;
 
-	if (4096 > sum && sum >= 2200) // ��2
+	if (4096 > sum && sum >= 3000) // ��2
 	{
 		return LEFT;
 	}
-	else if (1800 > sum && sum >= 0) // ��1
+	else if (1000 > sum && sum >= 0) // ��1
 	{
 		return RIGHT;
 	}
