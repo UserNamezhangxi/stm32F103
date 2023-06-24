@@ -26,7 +26,7 @@ All rights reserved
 
 void LED_Init(void);  //≥ı ºªØ
 void Led_Flash(u16 time);
-void BEEP_ON();
-void BEEP_OFF();
+void BEEP_ON(void);
+void BEEP_OFF(void);
 
 #endif
