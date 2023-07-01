@@ -33,7 +33,7 @@ float Acceleration_Z;												// Z轴加速度计
 // float Balance_Kp=540,Balance_Kd=1.5,Velocity_Kp=220,Velocity_Ki=1.1,Turn_Kp=42,Turn_Kd=-1;//PID参数（放大100倍）
 // float Balance_Kp=780*0.6,Balance_Kd=2.3*0.6,Velocity_Kp=1200,Velocity_Ki=6,Turn_Kp=0,Turn_Kd=0;//PID参数（放大100倍）
 float Balance_Kp = 600, Balance_Kd = 1.44, Velocity_Kp = 200, Velocity_Ki = 1, Turn_Kp = 0, Turn_Kd = 1; // PID参数（放大100倍）
-u8 tmp_buf[33], mode = 0;
+u8 tmp_buff[33], mode = 0;
 u8 temp_val;
 u8 play_pause;
 
@@ -136,8 +136,8 @@ int main(void)
 {
 	MY_NVIC_PriorityGroupConfig(2); // 设置中断分组
 	delay_init();					// 延时函数初始化
-	JTAG_Set(JTAG_SWD_DISABLE);		// 关闭JTAG接口
-	JTAG_Set(SWD_ENABLE);			// 打开SWD接口 可以利用主板的SWD接口调试
+  JTAG_Set(JTAG_SWD_DISABLE);		// 关闭JTAG接口
+  JTAG_Set(SWD_ENABLE);			// 打开SWD接口 可以利用主板的SWD接口调试
 	LED_Init(); // 初始化与 LED 连接的硬件接口
 	KEY_Init();						// 按键初始化
 	MiniBalance_PWM_Init(7199, 0);	// 初始化PWM 10KHZ与电机硬件接口，用于驱动电机
@@ -159,27 +159,22 @@ int main(void)
 		OLED_Clear();
 	}
 	OLED_Clear();
-
+  //MiniBalance_EXTI_Init(); // MPU6050 5ms定时中断初始化，节省定时器资源，减少cpu负担
 	// 音乐模块初始化
 	delay_ms(300);
 	USART3_Send(MUSIC_PLAY_MODE_LOOP_ALL);
 	delay_ms(300);	
 	USART3_Send(MUSIC_PLAY);
-  // MiniBalance_EXTI_Init(); // MPU6050 5ms定时中断初始化，节省定时器资源，减少cpu负担
-
-		NRF24L01_RX_Mode();
-		OLED_ShowString(0, 0, "NRF24L01 RX_Mode", 8, 1);
-
-		while (1)
+	NRF24L01_RX_Mode();
+	while (1)
+	{
+		LED = !LED;
+		OLED_ShowString(0, 8, "Receive DATA:", 8, 1);
+		if (NRF24L01_RxPacket(tmp_buff) == 0) // 一旦接收到信息,则显示出来.
 		{
-			OLED_ShowString(0, 8, "Receive DATA:", 8, 1);
-			if (NRF24L01_RxPacket(tmp_buf) == 0) // 一旦接收到信息,则显示出来.
-			{
-				OLED_ShowNumber(0, 18, tmp_buf[0], 2, 8, 1);
-				OLED_ShowNumber(20, 18, tmp_buf[1], 2, 8, 1);
-				do_action(tmp_buf[0], tmp_buf[1]);
-			}
-			OLED_Refresh_Gram();
-			
+			OLED_ShowNumber(0, 18, tmp_buff[0], 2, 8, 1);
+			OLED_ShowNumber(20, 18, tmp_buff[1], 2, 8, 1);
+			do_action(tmp_buff[0], tmp_buff[1]);
+		}  
 	}
 }

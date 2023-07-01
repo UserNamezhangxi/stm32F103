@@ -1,4 +1,5 @@
 #include "control.h"	
+
 /**************************************************************************
 Function: Control function
 Input   : none
@@ -16,18 +17,14 @@ int EXTI15_10_IRQHandler(void)
 	int Encoder_Left,Encoder_Right;             					//左右编码器的脉冲计数
 	int Balance_Pwm,Velocity_Pwm,Turn_Pwm;		  					//平衡环PWM变量，速度环PWM变量，转向环PWM变
 	if(INT==0)		
-	{   
+	{   	
 		EXTI->PR=1<<12;                           					//清除中断标志位   
-		Flag_Target=!Flag_Target;
+    Flag_Target=!Flag_Target;
 		Get_Angle(Way_Angle);                     					//更新姿态，5ms一次，更高的采样频率可以改善卡尔曼滤波和互补滤波的效果
 		Encoder_Left=-Read_Encoder(2);            					//读取左轮编码器的值，前进为正，后退为负
 		Encoder_Right=Read_Encoder(4);           					//读取右轮编码器的值，前进为正，后退为负
 																												//左轮A相接TIM2_CH1,右轮A相接TIM4_CH2,故这里两个编码器的极性相同
 		Get_Velocity_Form_Encoder(Encoder_Left,Encoder_Right);//编码器读数转速度（mm/s）
-//		if(delay_flag==1)
-//		{
-//			if(++delay_50==10)	 delay_50=0,delay_flag=0;  		//给主函数提供50ms的精准延时，示波器需要50ms高精度延时
-//		}
 		if(Flag_Target==1)                        					//10ms控制一次
 		{
 			Voltage_Temp=Get_battery_volt();		    					//读取电池电压		
@@ -57,7 +54,8 @@ int EXTI15_10_IRQHandler(void)
 		if(Turn_Off(Angle_Balance,Voltage)==0)     					//如果不存在异常
 			Set_Pwm(Motor_Left,Motor_Right);         					//赋值给PWM寄存器  
 	 }       	
-	 return 0;	  
+	 return 0;	
+ 
 } 
 
 /**************************************************************************
@@ -140,7 +138,7 @@ int Turn(float gyro)
   //===================转向PD控制器=================//
 	 
 	 turn=Turn_Target*Kp+gyro*Turn_Kd;//结合Z轴陀螺仪进行PD控制
-	 printf("Turn_Target = %f,Turn_Kp=%f, gyro= %f ,Turn_Kd=%f turn=%f\r\n",Turn_Target,Turn_Kp,gyro,Turn_Kd,turn);
+	 //printf("Turn_Target = %f,Turn_Kp=%f, gyro= %f ,Turn_Kd=%f turn=%f\r\n",Turn_Target,Turn_Kp,gyro,Turn_Kd,turn);
 
 	 return turn;								 				 //转向环PWM右转为正，左转为负
 }
