@@ -4,6 +4,7 @@
 #include "sys.h"
 
 #define DEFAULT_KEY 99
+#define DEFAULT_AD_KEY 98
 #define NO_KEY 0
 
 #define KEY_UP 1

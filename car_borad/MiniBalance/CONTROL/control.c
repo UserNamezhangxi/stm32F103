@@ -97,12 +97,12 @@ int Velocity(int encoder_left,int encoder_right)
 	  else  Movement=0;	
 	
    //=============超声波功能（跟随/避障）==================// 
-	  if(Flag_follow==1&&(Distance>200&&Distance<500)&&Flag_Left!=1&&Flag_Right!=1) //跟随
-			 Movement=Target_Velocity/Flag_velocity;
-		if(Flag_follow==1&&Distance<200&&Flag_Left!=1&&Flag_Right!=1) 
-			 Movement=-Target_Velocity/Flag_velocity;
-		if(Flag_avoid==1&&Distance<450&&Flag_Left!=1&&Flag_Right!=1)  //超声波避障
-			 Movement=-Target_Velocity/Flag_velocity;
+//	  if(Flag_follow==1&&(Distance>200&&Distance<500)&&Flag_Left!=1&&Flag_Right!=1) //跟随
+//			 Movement=Target_Velocity/Flag_velocity;
+//		if(Flag_follow==1&&Distance<200&&Flag_Left!=1&&Flag_Right!=1) 
+//			 Movement=-Target_Velocity/Flag_velocity;
+//		if(Flag_avoid==1&&Distance<450&&Flag_Left!=1&&Flag_Right!=1)  //超声波避障
+//			 Movement=-Target_Velocity/Flag_velocity;
 		
    //================速度PI控制器=====================//	
 		Encoder_Least =0-(encoder_left+encoder_right);                    //获取最新速度偏差=目标速度（此处为零）-测量速度（左右编码器之和） 
@@ -127,14 +127,14 @@ Output  : Turn control PWM
 **************************************************************************/
 int Turn(float gyro)
 {
-	 static float Turn_Target,turn,Turn_Amplitude=54;
+	 static float Turn_Target,turn,Turn_Amplitude=40;
 	 float Kp=Turn_Kp,Kd;			//修改转向速度，请修改Turn_Amplitude即可
 //	//===================遥控左右旋转部分=================//
-//	 if(1==Flag_Left)	        Turn_Target=-Turn_Amplitude/Flag_velocity;
-//	 else if(1==Flag_Right)	  Turn_Target=Turn_Amplitude/Flag_velocity; 
-//	 else Turn_Target=0;
-//	 if(1==Flag_front||1==Flag_back)  Kd=Turn_Kd;        
-//	 else Kd=0;   //转向的时候取消陀螺仪的纠正 有点模糊PID的思想
+	 if(1==Flag_Left)	        Turn_Target=-Turn_Amplitude/Flag_velocity;
+	 else if(1==Flag_Right)	  Turn_Target=Turn_Amplitude/Flag_velocity; 
+	 else Turn_Target=0;
+	 if(1==Flag_front||1==Flag_back)  Kd=Turn_Kd;        
+	 else Kd=0;   //转向的时候取消陀螺仪的纠正 有点模糊PID的思想
   //===================转向PD控制器=================//
 	 
 	 turn=Turn_Target*Kp+gyro*Turn_Kd;//结合Z轴陀螺仪进行PD控制

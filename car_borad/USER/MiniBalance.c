@@ -19,6 +19,8 @@ All rights reserved
 ***********************************************/
 #include "stm32f10x.h"
 #include "sys.h"
+#include "bmp.h"
+
 u8 Way_Angle = 2;													// 获取角度的算法，1：四元数  2：卡尔曼  3：互补滤波
 u8 Flag_front, Flag_back, Flag_Left, Flag_Right, Flag_velocity = 2; // 蓝牙遥控相关的变量
 u8 Flag_Stop = 1, Flag_Show = 0;									// 电机停止标志位和显示标志位  默认停止 显示打开
@@ -32,7 +34,7 @@ u8 Flag_follow = 0, Flag_avoid = 0;									// 超声波跟随、超声波壁障
 float Acceleration_Z;												// Z轴加速度计
 // float Balance_Kp=540,Balance_Kd=1.5,Velocity_Kp=220,Velocity_Ki=1.1,Turn_Kp=42,Turn_Kd=-1;//PID参数（放大100倍）
 // float Balance_Kp=780*0.6,Balance_Kd=2.3*0.6,Velocity_Kp=1200,Velocity_Ki=6,Turn_Kp=0,Turn_Kd=0;//PID参数（放大100倍）
-float Balance_Kp = 600, Balance_Kd = 1.44, Velocity_Kp = 200, Velocity_Ki = 1, Turn_Kp = 0, Turn_Kd = 1; // PID参数（放大100倍）
+float Balance_Kp = 600, Balance_Kd = 1.44, Velocity_Kp = 200, Velocity_Ki = 1, Turn_Kp = 40, Turn_Kd = 1; // PID参数
 u8 tmp_buff[33], mode = 0;
 u8 temp_val;
 u8 play_pause;
@@ -45,30 +47,58 @@ void do_action(u8 action, u8 val)
 		switch (val)
 		{
 		case LEFT:
-
-			break;
-		case LEFT_UP:
-
-			break;
-		case UP:
-
-			break;
-		case RIGHT_UP:
-
+			Flag_Left = 1;
+			Flag_Right = 0;
+			Flag_front = 1;
+			Flag_back = 0;
 			break;
 		case RIGHT:
-
+			Flag_Left = 0;
+			Flag_Right = 1;
+			Flag_front = 1;
+			Flag_back = 0;
 			break;
-		case RIGHT_DOWN:
-
+		case UP:
+			Flag_Left = 0;
+			Flag_Right = 0;
+			Flag_front = 1;
+			Flag_back = 0;
 			break;
 		case DOWN:
-
+			Flag_Left = 0;
+			Flag_Right = 0;
+			Flag_front = 0;
+			Flag_back = 1;
+			break;
+		case LEFT_UP:
+			Flag_Left = 1;
+			Flag_Right = 0;
+			Flag_front = 1;
+			Flag_back = 0;
+			break;
+		case RIGHT_UP:
+			Flag_Left = 0;
+			Flag_Right = 1;
+			Flag_front = 1;
+			Flag_back = 0;
+			break;
+		case RIGHT_DOWN:
+			Flag_Left = 0;
+			Flag_Right = 1;
+			Flag_front = 0;
+			Flag_back = 1;
 			break;
 		case LEFT_DOWN:
-
+			Flag_Left = 1;
+			Flag_Right = 0;
+			Flag_front = 0;
+			Flag_back = 1;
 			break;
 		default:
+			Flag_Left = 0;
+			Flag_Right = 0;
+			Flag_front = 0;
+			Flag_back = 0;
 			break;
 		}
 	}
@@ -78,6 +108,10 @@ void do_action(u8 action, u8 val)
 		{
 		case KEY_LED:
 			LED = !LED;
+			Flag_front = 0;
+			Flag_back = 0;
+			Flag_Left = 0;
+			Flag_Right = 0;
 			break;
 		case KEY_BEEP:
 			BEEP = 0;
@@ -95,12 +129,16 @@ void do_action(u8 action, u8 val)
 			USART3_Send(MUSIC_PRE);
 			break;
 		case KEY_UP:
+
 			break;
 		case KEY_LEFT:
+
 			break;
 		case KEY_RIGHT:
+
 			break;
 		case KEY_DOWN:
+
 			break;
 		case KEY_CAR_MODE:
 			break;
@@ -136,22 +174,22 @@ int main(void)
 {
 	MY_NVIC_PriorityGroupConfig(2); // 设置中断分组
 	delay_init();					// 延时函数初始化
-  JTAG_Set(JTAG_SWD_DISABLE);		// 关闭JTAG接口
-  JTAG_Set(SWD_ENABLE);			// 打开SWD接口 可以利用主板的SWD接口调试
-	LED_Init(); // 初始化与 LED 连接的硬件接口
+	JTAG_Set(JTAG_SWD_DISABLE);		// 关闭JTAG接口
+	JTAG_Set(SWD_ENABLE);			// 打开SWD接口 可以利用主板的SWD接口调试
+	LED_Init();						// 初始化与 LED 连接的硬件接口
 	KEY_Init();						// 按键初始化
 	MiniBalance_PWM_Init(7199, 0);	// 初始化PWM 10KHZ与电机硬件接口，用于驱动电机
-	uart_init(115200); // 串口1初始化
-	uart3_init(9600);  // 串口3初始化，用于蓝牙模块
+	uart_init(115200);				// 串口1初始化
+	uart3_init(9600);				// 串口3初始化，用于蓝牙模块
 	Encoder_Init_TIM2();			// 编码器接口
 	Encoder_Init_TIM4();			// 初始化编码器4
 	Adc_Init();						// adc初始化
-	IIC_Init();	 // IIC初始化
-	OLED_Init(); // OLED初始化
+	IIC_Init();						// IIC初始化
+	OLED_Init();					// OLED初始化
 	MPU6050_initialize();			// MPU6050初始化
 	DMP_Init();						// 初始化DMP
-	TIM3_Cap_Init(0XFFFF,72-1);	    //超声波初始化
-	NRF24L01_Init(); // 初始化NRF24L01
+	TIM3_Cap_Init(0XFFFF, 72 - 1);	// 超声波初始化
+	NRF24L01_Init();				// 初始化NRF24L01
 	while (NRF24L01_Check())
 	{
 		OLED_ShowString(0, 0, "NRF24L01 Error", 8, 1);
@@ -159,22 +197,24 @@ int main(void)
 		OLED_Clear();
 	}
 	OLED_Clear();
-  //MiniBalance_EXTI_Init(); // MPU6050 5ms定时中断初始化，节省定时器资源，减少cpu负担
+	OLED_ShowPicture(0,0,128,64,BMP1,1);
+	OLED_Refresh();
+	delay_ms(500);
+	MiniBalance_EXTI_Init(); // MPU6050 5ms定时中断初始化，节省定时器资源，减少cpu负担
 	// 音乐模块初始化
 	delay_ms(300);
 	USART3_Send(MUSIC_PLAY_MODE_LOOP_ALL);
-	delay_ms(300);	
+	delay_ms(300);
 	USART3_Send(MUSIC_PLAY);
 	NRF24L01_RX_Mode();
 	while (1)
 	{
-		LED = !LED;
-		OLED_ShowString(0, 8, "Receive DATA:", 8, 1);
+		// OLED_ShowString(0, 8, "Receive DATA:", 8, 1);
 		if (NRF24L01_RxPacket(tmp_buff) == 0) // 一旦接收到信息,则显示出来.
 		{
-			OLED_ShowNumber(0, 18, tmp_buff[0], 2, 8, 1);
-			OLED_ShowNumber(20, 18, tmp_buff[1], 2, 8, 1);
+			//			OLED_ShowNumber(0, 18, tmp_buff[0], 2, 8, 1);
+			//			OLED_ShowNumber(20, 18, tmp_buff[1], 2, 8, 1);
 			do_action(tmp_buff[0], tmp_buff[1]);
-		}  
+		}
 	}
 }

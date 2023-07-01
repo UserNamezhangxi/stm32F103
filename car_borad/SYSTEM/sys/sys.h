@@ -95,6 +95,9 @@
 #define FTIR 1 // 下降沿触发
 #define RTIR 2 // 上升沿触发
 
+#define DEFAULT_KEY 99
+#define DEFAULT_AD_KEY 98
+#define NO_KEY 0
 
 #define NO_KEY 0
 #define KEY_UP 1

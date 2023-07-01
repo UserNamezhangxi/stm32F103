@@ -132,21 +132,21 @@ u8 Key_GetNum(u8 *key, u8 *value)
 		return DEFAULT_KEY;
 	}
 
-	temp_key = Get_AD_Key();
-	if (temp_key != NO_KEY)
-	{
-		*key = KEY_1;
-		*value = temp_key;
-		return DEFAULT_KEY;
-	}
-
-	temp_key = get_music_volume(tp);
+  temp_key = get_music_volume(tp);
 	if (temp_key != NO_KEY)
 	{
 		tp = temp_key;
 		*key = KEY_3;
 		*value = temp_key;
 		return DEFAULT_KEY;
+	}
+	
+	temp_key = Get_AD_Key();
+	if (temp_key != NO_KEY)
+	{
+		*key = KEY_1;
+		*value = temp_key;
+		return DEFAULT_AD_KEY;
 	}
 
 	*key = NO_KEY;

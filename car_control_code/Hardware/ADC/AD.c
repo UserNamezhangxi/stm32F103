@@ -127,7 +127,7 @@ uint16_t Get_AD_Key()
 	}
 	else
 	{
-		return NO_KEY;
+		return DEFAULT_AD_KEY;
 	}
 }
 
