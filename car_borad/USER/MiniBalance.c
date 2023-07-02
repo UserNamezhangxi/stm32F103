@@ -141,6 +141,11 @@ void do_action(u8 action, u8 val)
 
 			break;
 		case KEY_CAR_MODE:
+			if (Flag_velocity == 1) {
+				Flag_velocity = 2;
+			} else {
+				Flag_velocity = 1;
+			}
 			break;
 		case KEY_PLAY_PAUSE:
 			if (play_pause == 1)

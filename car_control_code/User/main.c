@@ -121,27 +121,5 @@ int main(void)
 				} 
 			}
 		}
-		else
-		{
-			NRF24L01_RX_Mode();
-			OLED_ShowString(0, 0, "NRF24L01 RX_Mode", 8, 1);
-
-			while (1)
-			{
-				OLED_ShowString(0, 8, "Receive DATA:", 8, 1);
-				if (NRF24L01_RxPacket(tmp_buf) == 0) // 一旦接收到信息,则显示出来.
-				{
-					OLED_ShowChar(0, 19, tmp_buf[0] + 0X30, 8, 1);
-					LED = !LED;
-					delay_ms(300);
-					LED = !LED;
-					delay_ms(300);
-				}
-				else
-				{
-					delay_us(100);
-				}
-			}
-		}
 	}
 }
